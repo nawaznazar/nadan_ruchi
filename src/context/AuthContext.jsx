@@ -1,0 +1,30 @@
+import React, { createContext, useContext, useEffect, useState } from 'react'
+
+const AuthContext = createContext()
+export const useAuth = () => useContext(AuthContext)
+
+const DEFAULT_USERS = [
+  { email: 'admin@nadanruchi.qa', password: 'admin123', role: 'admin', name: 'Admin' },
+  { email: 'customer@nadanruchi.qa', password: 'customer123', role: 'customer', name: 'Guest' },
+]
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('nr_user')
+    return saved ? JSON.parse(saved) : null
+  })
+
+  useEffect(() => {
+    if (user) localStorage.setItem('nr_user', JSON.stringify(user))
+    else localStorage.removeItem('nr_user')
+  }, [user])
+
+  const login = (email, password) => {
+    const match = DEFAULT_USERS.find(u => u.email === email && u.password === password)
+    if (match) { setUser({ email: match.email, role: match.role, name: match.name }); return { ok:true } }
+    return { ok:false, error:'Invalid credentials' }
+  }
+  const logout = () => setUser(null)
+
+  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>
+}
