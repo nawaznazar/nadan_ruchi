@@ -4,8 +4,10 @@ const AuthContext = createContext()
 export const useAuth = () => useContext(AuthContext)
 
 const DEFAULT_USERS = [
-  { email: 'admin@nadanruchi.qa', password: 'admin123', role: 'admin', name: 'Admin' },
-  { email: 'customer@nadanruchi.qa', password: 'customer123', role: 'customer', name: 'Guest' },
+  { email: 'admin@nadanruchi.qa', password: 'Nawaz@987', role: 'admin', name: 'Admin' },
+  { email: 'arun@yopmail.com', password: 'Arun@987', role: 'customer', name: 'Guest' },
+  { email: 'shobin@yopmail.com', password: 'Shobin@987', role: 'customer', name: 'Guest' },
+
 ]
 
 export function AuthProvider({ children }) {

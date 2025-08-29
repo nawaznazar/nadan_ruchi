@@ -29,7 +29,6 @@ export default function Login(){
         {error && <p className="muted">{error}</p>}
         <div className="spacer"></div>
         <button className="btn" type="submit">Sign in</button>
-        <p className="muted">Demo accounts: admin@nadanruchi.qa / admin123 • customer@nadanruchi.qa / customer123</p>
       </form>
     </div>
   )

@@ -9,7 +9,6 @@ export default function Contact() {
         <p><strong>Location:</strong> Al Wakrah, Doha, Qatar</p>
         <p><strong>Phone:</strong> +974 5555 5555</p>
         <p><strong>Email:</strong> hello@nadanruchi.qa</p>
-        <p className="muted">This is a demo frontend — no real orders are processed.</p>
       </div>
 
       <div className="card">
