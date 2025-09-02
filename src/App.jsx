@@ -11,9 +11,11 @@ import Contact from "./pages/Contact.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Profile from "./pages/Profile.jsx";
-import Orders from "./pages/Orders.jsx";
+import Orders from "./pages/Orders.jsx";              // Customer orders
+import AdminOrders from "./pages/AdminOrders.jsx";   // Admin orders
 import NotFound from "./pages/NotFound.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
@@ -26,22 +28,47 @@ export default function App() {
         <CartProvider>
           <Header />
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/menu" element={<Menu />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
 
-            {/* Authentication routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/profile" element={<Profile />} />
+            {/* Customer-only routes */}
+            <Route
+              path="/cart"
+              element={
+                <ProtectedRoute role="customer">
+                  <Cart />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute role="customer">
+                  <Checkout />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute role="customer">
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute role="customer">
+                  <Orders />
+                </ProtectedRoute>
+              }
+            />
 
-            {/* Customer orders */}
-            <Route path="/orders" element={<Orders />} />
-
-            {/* Admin-only route */}
+            {/* Admin-only routes */}
             <Route
               path="/admin"
               element={
@@ -50,6 +77,18 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/orders"
+              element={
+                <ProtectedRoute role="admin">
+                  <AdminOrders />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Auth routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
             {/* 404 fallback */}
             <Route path="*" element={<NotFound />} />

@@ -9,51 +9,74 @@ export default function Header() {
   const { user, logout } = useAuth();
   const qty = items.reduce((s, i) => s + i.qty, 0);
 
+  // Links for customer
+  const customerLinks = (
+    <>
+      <NavLink to="/" end>Home</NavLink>
+      <NavLink to="/menu">Menu</NavLink>
+      <NavLink to="/about">About</NavLink>
+      <NavLink to="/contact">Contact</NavLink>
+      <NavLink to="/orders">My Orders</NavLink>
+      <NavLink to="/profile">Profile</NavLink>
+    </>
+  );
+
+  // Links for admin
+  const adminLinks = (
+    <>
+      <NavLink to="/" end>Home</NavLink>
+      <NavLink to="/menu">Menu</NavLink>
+      <NavLink to="/admin/orders">Orders</NavLink>  {/* fixed path */}
+      <NavLink to="/admin">Admin Dashboard</NavLink>
+    </>
+  );
+
+  // Links for guests
+  const guestLinks = (
+    <>
+      <NavLink to="/" end>Home</NavLink>
+      <NavLink to="/menu">Menu</NavLink>
+      <NavLink to="/about">About</NavLink>
+      <NavLink to="/contact">Contact</NavLink>
+    </>
+  );
+
   return (
     <header>
       <div className="container">
         <nav>
+          {/* Brand */}
           <Link className="brand" to="/">
             <span className="dot"></span> Nadan Ruchi
           </Link>
 
+          {/* Navigation Links */}
           <div className="nav-links">
-            <NavLink to="/" end>
-              Home
-            </NavLink>
-            <NavLink to="/menu">Menu</NavLink>
-            <NavLink to="/about">About</NavLink>
-            <NavLink to="/contact">Contact</NavLink>
-
-            {/* Show only for logged-in customers */}
-            {user?.role === "customer" && (
-              <>
-                <NavLink to="/orders">My Orders</NavLink>
-                <NavLink to="/profile">Profile</NavLink>
-              </>
-            )}
-
-            {/* Show only for admin */}
-            {user?.role === "admin" && <NavLink to="/admin">Admin</NavLink>}
+            {!user && guestLinks}
+            {user?.role === "customer" && customerLinks}
+            {user?.role === "admin" && adminLinks}
           </div>
 
+          {/* Right Side Buttons */}
           <div className="row">
             <DarkModeToggle />
-            <NavLink to="/cart" className="btn outline">
-              Cart ({qty})
-            </NavLink>
+
+            {/* Cart only for customers */}
+            {user?.role === "customer" && (
+              <NavLink to="/cart" className="btn outline">
+                Cart ({qty})
+              </NavLink>
+            )}
+
+            {/* Auth Buttons */}
             {user ? (
               <button className="btn" onClick={logout}>
                 Logout
               </button>
             ) : (
               <>
-                <NavLink to="/login" className="btn">
-                  Login
-                </NavLink>
-                <NavLink to="/register" className="btn outline">
-                  Register
-                </NavLink>
+                <NavLink to="/login" className="btn">Login</NavLink>
+                <NavLink to="/register" className="btn outline">Register</NavLink>
               </>
             )}
           </div>
