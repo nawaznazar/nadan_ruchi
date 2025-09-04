@@ -48,18 +48,10 @@ export default function Home() {
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-content">
-          <h1
-            style={{
-              fontSize: "clamp(2rem, 4vw, 3rem)",
-              fontWeight: "800",
-              background: "linear-gradient(to right, var(--primary), #16a34a)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent"
-            }}
-          >
+          <h1>
             Experience the Authentic Taste of Kerala in Qatar 
           </h1>
-          <p className="muted" style={{ fontSize: "1.1rem" }}>
+          <p className="muted">
             From fluffy appams to spicy Malabar biriyani — only Kerala &
             Malayali specials. Fresh, homely, and made with love.
           </p>
@@ -76,26 +68,15 @@ export default function Home() {
       {/* Today’s Highlights */}
       <section style={{ marginTop: "3rem" }}>
         <h2>Today’s Highlights</h2>
-        <div className="grid highlights-grid" style={{ marginTop: "1rem" }}>
+        <div className="grid" style={{ marginTop: "1rem" }}>
           {highlights.length === 0 ? (
             <p className="muted">No highlights today.</p>
           ) : (
             highlights.map(item => (
-              <div key={item.id} className="card highlight-card">
+              <div key={item.id} className="card hover-card">
                 {item.img && (
                   <div className="highlight-img-wrapper">
-                    <img
-                      src={item.img}
-                      alt={item.name}
-                      className="highlight-img"
-                      style={{
-                        width: "100%",
-                        height: "180px",
-                        objectFit: "cover",
-                        borderRadius: "0.5rem",
-                        marginBottom: "0.5rem"
-                      }}
-                    />
+                    <img src={item.img} alt={item.name} className="highlight-img" />
                     <span className="ribbon">🔥 Today’s Highlight</span>
                   </div>
                 )}
@@ -106,8 +87,6 @@ export default function Home() {
             ))
           )}
         </div>
-
-        {/* View More Button */}
         {highlights.length > 0 && (
           <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
             <Link to="/menu" className="btn outline">View More →</Link>

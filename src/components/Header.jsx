@@ -9,14 +9,13 @@ export default function Header() {
   const { user, logout } = useAuth();
   const qty = items.reduce((s, i) => s + i.qty, 0);
 
-  // Links for customer
+  // Links for customer (moved My Orders out of here)
   const customerLinks = (
     <>
       <NavLink to="/" end>Home</NavLink>
       <NavLink to="/menu">Menu</NavLink>
       <NavLink to="/about">About</NavLink>
       <NavLink to="/contact">Contact</NavLink>
-      <NavLink to="/orders">My Orders</NavLink>
       <NavLink to="/profile">Profile</NavLink>
     </>
   );
@@ -24,9 +23,7 @@ export default function Header() {
   // Links for admin
   const adminLinks = (
     <>
-      <NavLink to="/" end>Home</NavLink>
-      <NavLink to="/menu">Menu</NavLink>
-      <NavLink to="/admin/orders">Orders</NavLink>  {/* fixed path */}
+      <NavLink to="/admin/orders">📦 Orders</NavLink>
       <NavLink to="/admin">Admin Dashboard</NavLink>
     </>
   );
@@ -61,11 +58,16 @@ export default function Header() {
           <div className="row">
             <DarkModeToggle />
 
-            {/* Cart only for customers */}
+            {/* Cart + My Orders for customers */}
             {user?.role === "customer" && (
-              <NavLink to="/cart" className="btn outline">
-                Cart ({qty})
-              </NavLink>
+              <>
+                <NavLink to="/cart" className="btn outline">
+                  🛒 Cart ({qty})
+                </NavLink>
+                <NavLink to="/orders" className="btn outline">
+                  📦 My Orders
+                </NavLink>
+              </>
             )}
 
             {/* Auth Buttons */}

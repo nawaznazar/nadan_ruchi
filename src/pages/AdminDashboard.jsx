@@ -34,7 +34,8 @@ export default function AdminDashboard() {
   const { items, upsert, del } = useAdminMenu();
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState(null);
-  const [msg, setMsg] = useState(null);
+  const [resetMsg, setResetMsg] = useState(null);
+  const [saveMsg, setSaveMsg] = useState(null); // ✅ new toast state
   const navigate = useNavigate();
 
   const filtered = useMemo(
@@ -50,18 +51,16 @@ export default function AdminDashboard() {
 
   if (user?.role !== "admin") return null;
 
-  const handleEditClick = (item) => setEditingId(item.id);
-  const handleCancel = () => setEditingId(null);
+  const handleEditClick = (itemId) => setEditingId(itemId);
   const handleSave = (updatedItem) => {
-    upsert({ ...updatedItem, price: Number(updatedItem.price) });
-    setEditingId(null);
-    setMsg("Item saved successfully!");
-  };
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this item?")) {
-      del(id);
-      setMsg("Item deleted.");
-    }
+    upsert({
+      ...updatedItem,
+      price: Number(updatedItem.price),
+      spicy: updatedItem.spicy === "" ? 0 : Number(updatedItem.spicy),
+    });
+    setEditingId(null); // hide form
+    setSaveMsg(`✅ ${updatedItem.name} saved!`); // ✅ show toast
+    setTimeout(() => setSaveMsg(null), 2500);
   };
 
   const resetAppData = () => {
@@ -78,138 +77,222 @@ export default function AdminDashboard() {
         "nr_registered_users",
       ];
       keys.forEach((k) => localStorage.removeItem(k));
-      setMsg("All app data has been reset!");
+      setResetMsg("⚠️ All app data has been reset!");
+      setTimeout(() => setResetMsg(null), 3500);
       window.location.reload();
     }
   };
 
   return (
-    <div className="container">
-      <h2>Admin — Manage Menu</h2>
-      {msg && <div className="alert">{msg}</div>}
-
-      <button
-        className="btn outline"
-        style={{ marginBottom: "1rem" }}
-        onClick={() => navigate("/admin/orders")}
-      >
-        📦 View All Orders
-      </button>
-
-      <div className="row" style={{ marginBottom: "1rem" }}>
-        <input
-          placeholder="Search items…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-
-      {/* Add New Item Card */}
-      {editingId === "new" ? (
-        <InlineEditForm
-          item={{
-            id: "",
-            name: "",
-            category: "Breakfast",
-            price: 0,
-            veg: true,
-            spicy: 0,
-            img: "",
-            desc: "",
-            highlight: false,
+    <div
+      className="container"
+      style={{ display: "flex", flexDirection: "column", gap: "2rem" }}
+    >
+      {/* ================= TOAST ================= */}
+      {saveMsg && (
+        <div
+          style={{
+            position: "fixed",
+            top: "1rem",
+            right: "1rem",
+            backgroundColor: "#4BB543",
+            color: "white",
+            padding: "0.6rem 1rem",
+            borderRadius: "6px",
+            fontSize: "0.9rem",
+            boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+            zIndex: 9999,
+            animation: "fadeinout 2.5s forwards",
           }}
-          onCancel={() => setEditingId(null)}
-          onSave={(item) => handleSave({ ...item, id: generateId() })}
-        />
-      ) : (
-        <div className="card" style={{ marginBottom: "1rem" }}>
-          <button className="btn outline" onClick={() => setEditingId("new")}>
-            ➕ Add New Item
-          </button>
+        >
+          {saveMsg}
         </div>
       )}
 
-      {/* Existing Items */}
-      <div className="grid">
-        {filtered.map((item) => (
-          <div key={item.id} className="card">
-            <strong>{item.name}</strong>
-            <div className="muted">
-              {item.category} • {item.veg ? "Veg" : "Non-veg"}
-            </div>
-            {item.spicy > 0 && (
-              <div style={{ color: "tomato" }}>Spicy Level: {item.spicy}</div>
-            )}
-            {item.highlight && <span className="tag primary">Today’s Highlight</span>}
-            {item.img && (
-              <img
-                src={item.img}
-                alt={item.name}
-                style={{
-                  width: "200px",
-                  height: "150px",
-                  objectFit: "cover",
-                  borderRadius: "0.5rem",
-                  marginTop: "0.5rem",
-                }}
-              />
-            )}
+      {/* ================= VIEW ALL ORDERS SECTION ================= */}
+      <section>
+        <h2>📦 View All Orders</h2>
+        <button
+          className="btn outline"
+          style={{ marginBottom: "1rem" }}
+          onClick={() => navigate("/admin/orders")}
+        >
+          Go to Orders
+        </button>
+      </section>
 
-            <div className="row" style={{ marginTop: ".6rem" }}>
-              <button className="btn outline" onClick={() => handleEditClick(item)}>
-                Edit
-              </button>
-              <button className="btn outline" onClick={() => handleDelete(item.id)}>
-                Delete
-              </button>
-            </div>
+      {/* ================= MANAGE MENU SECTION ================= */}
+      <section>
+        <h2>🍴 Manage Menu</h2>
 
-            {editingId === item.id && (
-              <InlineEditForm item={item} onCancel={handleCancel} onSave={handleSave} />
-            )}
+        <div className="row" style={{ marginBottom: "1rem" }}>
+          <input
+            placeholder="Search items…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        {/* Add New Item Card */}
+        {editingId === "new" ? (
+          <InlineEditForm
+            item={{
+              id: "",
+              name: "",
+              category: "Breakfast",
+              price: "",
+              veg: true,
+              spicy: "",
+              img: "",
+              desc: "",
+              highlight: false,
+            }}
+            onCancel={() => setEditingId(null)}
+            onSave={(item) => handleSave({ ...item, id: generateId() })}
+          />
+        ) : (
+          <div className="card" style={{ marginBottom: "1rem" }}>
+            <button className="btn outline" onClick={() => setEditingId("new")}>
+              ➕ Add New Item
+            </button>
           </div>
-        ))}
-      </div>
+        )}
 
-      {/* Reset App Data */}
-      <div className="card reset-card" style={{ marginTop: "2rem" }}>
-        <h3>⚠️ Settings</h3>
+        {/* Existing Items */}
+        <div className="grid" style={{ gap: "1rem" }}>
+          {filtered.map((item) => (
+            <ItemCard
+              key={item.id}
+              item={item}
+              onEdit={handleEditClick}
+              onDelete={del}
+              onSave={handleSave}
+              isEditing={editingId === item.id}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* ================= RESET APP DATA SECTION ================= */}
+      <section style={{ position: "relative" }}>
+        <h2>⚠️ Settings</h2>
         <p>Reset all app data (menu, orders, reviews, highlights, users).</p>
         <button className="btn outline" onClick={resetAppData}>
           Reset App Data
         </button>
-      </div>
+
+        {resetMsg && (
+          <div
+            style={{
+              marginTop: "0.5rem",
+              backgroundColor: "#e67e22",
+              color: "white",
+              padding: "0.4rem 0.8rem",
+              borderRadius: "5px",
+              fontSize: "0.85rem",
+              display: "inline-block",
+              animation: "fadeinout 3.5s forwards",
+            }}
+          >
+            {resetMsg}
+          </div>
+        )}
+      </section>
+
+      <style>{`
+        @keyframes fadeinout {
+          0% { opacity: 0; transform: translateY(-10px);}
+          10% { opacity: 1; transform: translateY(0);}
+          90% { opacity: 1; transform: translateY(0);}
+          100% { opacity: 0; transform: translateY(-10px);}
+        }
+      `}</style>
     </div>
   );
 }
 
-// Inline Add/Edit Form with Today's Highlight Toggle
+// ================== ITEM CARD COMPONENT ==================
+function ItemCard({ item, onEdit, onDelete, isEditing, onSave }) {
+  return (
+    <div className="card" style={{ padding: "1rem", position: "relative" }}>
+      <strong>{item.name}</strong>
+      <div className="muted">
+        {item.category} • {item.veg ? "Veg" : "Non-veg"}
+      </div>
+      {item.spicy > 0 && (
+        <div style={{ color: "tomato" }}>Spicy Level: {item.spicy}</div>
+      )}
+      {item.img && (
+        <img
+          src={item.img}
+          alt={item.name}
+          style={{
+            width: "200px",
+            height: "150px",
+            objectFit: "cover",
+            borderRadius: "0.5rem",
+            marginTop: "0.5rem",
+          }}
+        />
+      )}
+      {item.highlight && (
+        <div style={{ marginTop: "0.5rem" }}>
+          <span className="tag primary">Today’s Highlight</span>
+        </div>
+      )}
+
+      <div className="row" style={{ marginTop: ".6rem" }}>
+        <button className="btn outline" onClick={() => onEdit(item.id)}>
+          Edit
+        </button>
+        <button className="btn outline" onClick={() => onDelete(item.id)}>
+          Delete
+        </button>
+      </div>
+
+      {isEditing && (
+        <InlineEditForm
+          item={item}
+          onCancel={() => onEdit(null)}
+          onSave={onSave}
+        />
+      )}
+    </div>
+  );
+}
+
+// ================== INLINE ADD/EDIT FORM ==================
 function InlineEditForm({ item, onCancel, onSave }) {
   const [form, setForm] = useState(item);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => setForm({ ...form, img: ev.target.result });
-    reader.readAsDataURL(file);
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.name) return alert("Name is required");
-    if (form.price <= 0) return alert("Price must be greater than 0");
-    onSave(form);
+    if (!form.price || Number(form.price) <= 0)
+      return alert("Price must be greater than 0");
+
+    onSave({
+      ...form,
+      price: Number(form.price),
+      spicy: form.spicy === "" ? 0 : Number(form.spicy),
+    });
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      style={{ marginTop: "1rem", borderTop: "1px solid #ccc", paddingTop: "1rem" }}
+      style={{
+        marginTop: "1rem",
+        borderTop: "1px solid #ccc",
+        paddingTop: "1rem",
+      }}
     >
       <div
         className="grid"
-        style={{ gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: "1rem" }}
+        style={{
+          gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))",
+          gap: "1rem",
+        }}
       >
         <input
           value={form.name}
@@ -235,49 +318,54 @@ function InlineEditForm({ item, onCancel, onSave }) {
           required
         />
         <select
-          value={form.veg ? "true" : "false"}
-          onChange={(e) => setForm({ ...form, veg: e.target.value === "true" })}
-        >
-          <option value="true">Veg</option>
-          <option value="false">Non-veg</option>
-        </select>
-        <select
           value={form.spicy}
-          onChange={(e) => setForm({ ...form, spicy: Number(e.target.value) })}
+          onChange={(e) => setForm({ ...form, spicy: e.target.value })}
         >
+          <option value="">Select Spicy Level</option>
           {[0, 1, 2, 3, 4, 5].map((n) => (
             <option key={n} value={n}>
               {n}
             </option>
           ))}
         </select>
+        <select
+          value={form.veg ? "true" : "false"}
+          onChange={(e) =>
+            setForm({ ...form, veg: e.target.value === "true" })
+          }
+        >
+          <option value="true">Veg</option>
+          <option value="false">Non-veg</option>
+        </select>
         <input
           value={form.img}
           onChange={(e) => setForm({ ...form, img: e.target.value })}
           placeholder="Image URL"
         />
-        <input type="file" accept="image/*" onChange={handleFileChange} />
         <input
           value={form.desc}
           onChange={(e) => setForm({ ...form, desc: e.target.value })}
           placeholder="Description"
         />
+      </div>
 
-        {/* Today's Highlight Toggle */}
+      <div style={{ marginTop: "1rem" }}>
         <label className="toggle-label">
           <input
             type="checkbox"
             checked={form.highlight}
-            onChange={(e) => setForm({ ...form, highlight: e.target.checked })}
+            onChange={(e) =>
+              setForm({ ...form, highlight: e.target.checked })
+            }
           />
           <span className="slider"></span>
           Today’s Highlight
         </label>
       </div>
 
-      <div className="row" style={{ marginTop: "0.5rem" }}>
+      <div className="row" style={{ marginTop: "0.5rem", gap: "0.5rem" }}>
         <button className="btn" type="submit">
-          Save
+          Save Changes
         </button>
         <button className="btn outline" type="button" onClick={onCancel}>
           Cancel
