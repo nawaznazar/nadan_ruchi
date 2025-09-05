@@ -29,7 +29,7 @@ export default function Orders() {
     }
   }, [user]);
 
-  // Auto update statuses every 30s
+  // Auto update statuses every 10s
   useEffect(() => {
     const interval = setInterval(() => {
       const all = JSON.parse(localStorage.getItem("nr_orders") || "[]");
@@ -53,7 +53,7 @@ export default function Orders() {
           setOrders(newAll.filter((o) => o.email === user.email));
         }
       }
-    }, 30000); // 30 seconds
+    }, 10000); // 10 seconds
 
     return () => clearInterval(interval);
   }, [user]);

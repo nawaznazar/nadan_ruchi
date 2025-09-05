@@ -35,7 +35,7 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [resetMsg, setResetMsg] = useState(null);
-  const [saveMsg, setSaveMsg] = useState(null); // ✅ new toast state
+  const [saveMsg, setSaveMsg] = useState(null);
   const navigate = useNavigate();
 
   const filtered = useMemo(
@@ -58,8 +58,8 @@ export default function AdminDashboard() {
       price: Number(updatedItem.price),
       spicy: updatedItem.spicy === "" ? 0 : Number(updatedItem.spicy),
     });
-    setEditingId(null); // hide form
-    setSaveMsg(`✅ ${updatedItem.name} saved!`); // ✅ show toast
+    setEditingId(null);
+    setSaveMsg(`✅ ${updatedItem.name} saved!`);
     setTimeout(() => setSaveMsg(null), 2500);
   };
 
@@ -95,8 +95,8 @@ export default function AdminDashboard() {
             position: "fixed",
             top: "1rem",
             right: "1rem",
-            backgroundColor: "#4BB543",
-            color: "white",
+            backgroundColor: "var(--success-bg, #4BB543)",
+            color: "var(--success-text, white)",
             padding: "0.6rem 1rem",
             borderRadius: "6px",
             fontSize: "0.9rem",
@@ -174,29 +174,35 @@ export default function AdminDashboard() {
       </section>
 
       {/* ================= RESET APP DATA SECTION ================= */}
-      <section style={{ position: "relative" }}>
+      <section>
         <h2>⚠️ Settings</h2>
-        <p>Reset all app data (menu, orders, reviews, highlights, users).</p>
-        <button className="btn outline" onClick={resetAppData}>
-          Reset App Data
-        </button>
 
-        {resetMsg && (
-          <div
-            style={{
-              marginTop: "0.5rem",
-              backgroundColor: "#e67e22",
-              color: "white",
-              padding: "0.4rem 0.8rem",
-              borderRadius: "5px",
-              fontSize: "0.85rem",
-              display: "inline-block",
-              animation: "fadeinout 3.5s forwards",
-            }}
-          >
-            {resetMsg}
-          </div>
-        )}
+        <div className="card" style={{ marginTop: "0.5rem", padding: "1rem" }}>
+          <p style={{ marginBottom: "0.8rem" }}>
+            Reset all app data (menu, orders, reviews, highlights, users).
+          </p>
+
+          <button className="btn outline" onClick={resetAppData}>
+            Reset App Data
+          </button>
+
+          {resetMsg && (
+            <div
+              style={{
+                marginTop: "0.8rem",
+                backgroundColor: "var(--warning-bg, #e67e22)",
+                color: "var(--warning-text, #fff)",
+                padding: "0.5rem 0.9rem",
+                borderRadius: "5px",
+                fontSize: "0.85rem",
+                display: "inline-block",
+                animation: "fadeinout 3.5s forwards",
+              }}
+            >
+              {resetMsg}
+            </div>
+          )}
+        </div>
       </section>
 
       <style>{`
