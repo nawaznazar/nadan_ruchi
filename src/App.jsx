@@ -13,8 +13,9 @@ import Register from "./pages/Register.jsx";
 import Profile from "./pages/Profile.jsx";
 import Orders from "./pages/Orders.jsx";              // Customer orders
 import AdminOrders from "./pages/AdminOrders.jsx";   // Admin orders
-import NotFound from "./pages/NotFound.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import AdminMoney from "./pages/AdminMoney.jsx";     // New money management page
+import NotFound from "./pages/NotFound.jsx";
 
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
@@ -82,6 +83,14 @@ export default function App() {
               element={
                 <ProtectedRoute role="admin">
                   <AdminOrders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/money"
+              element={
+                <ProtectedRoute role="admin">
+                  <AdminMoney />
                 </ProtectedRoute>
               }
             />

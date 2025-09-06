@@ -21,7 +21,10 @@ export default function Orders() {
   const [rating, setRating] = useState(5);
   const [text, setText] = useState("");
 
-  // Load orders for current user
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [sortOption, setSortOption] = useState("newest");
+
+  // Load user orders
   useEffect(() => {
     if (user) {
       const data = JSON.parse(localStorage.getItem("nr_orders") || "[]");
@@ -29,16 +32,14 @@ export default function Orders() {
     }
   }, [user]);
 
-  // Auto update statuses every 10s
+  // Auto-update order statuses every 10 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       const all = JSON.parse(localStorage.getItem("nr_orders") || "[]");
       let updated = false;
 
       const newAll = all.map((o) => {
-        if (["done", "cancelled", "rejected"].includes(o.status)) {
-          return o; // keep final statuses unchanged
-        }
+        if (["done", "cancelled", "rejected"].includes(o.status)) return o;
         const currentIndex = statusFlow.indexOf(o.status);
         if (currentIndex !== -1 && currentIndex < statusFlow.length - 1) {
           updated = true;
@@ -49,11 +50,9 @@ export default function Orders() {
 
       if (updated) {
         localStorage.setItem("nr_orders", JSON.stringify(newAll));
-        if (user) {
-          setOrders(newAll.filter((o) => o.email === user.email));
-        }
+        if (user) setOrders(newAll.filter((o) => o.email === user.email));
       }
-    }, 10000); // 10 seconds
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [user]);
@@ -82,20 +81,30 @@ export default function Orders() {
       <head>
         <title>Bill - Order #${order.id}</title>
         <style>
-          body { font-family: Arial, sans-serif; padding: 20px; }
-          h2 { text-align: center; }
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; color: #333; }
+          h1, h2, h3 { margin: 0; }
+          .header { text-align: center; border-bottom: 2px solid #ccc; padding-bottom: 10px; margin-bottom: 20px; }
+          .brand { font-size: 1.8rem; color:rgb(7, 95, 35); }
+          .address { font-size: 0.9rem; color: #555; }
           table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
           th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-          th { background: #f5f5f5; }
+          th { background:rgb(126, 215, 193); }
           .right { text-align: right; }
-          .muted { color: gray; font-size: 0.9rem; }
+          .total { font-size: 1.2rem; font-weight: bold; color: #111; }
+          .footer { text-align: center; margin-top: 2rem; font-size: 0.9rem; color: #555; }
         </style>
       </head>
       <body>
-        <h2>🧾 Invoice / Bill</h2>
+        <div class="header">
+          <h1 class="brand">🍴 Nadan Ruchi</h1>
+          <p class="address">Al Wakrah - Doha, Qatar</p>
+          <h2>🧾 Invoice / Bill</h2>
+        </div>
+
         <p><strong>Order ID:</strong> ${order.id}</p>
         <p><strong>Date:</strong> ${new Date(order.date).toLocaleString()}</p>
-        <p><strong>Customer:</strong> ${order.email}</p>
+        <p><strong>Customer Name:</strong> ${user?.name || "Guest"}</p>
+        <p><strong>Email:</strong> ${order.email}</p>
 
         <h3>Delivery Address</h3>
         <p>${order.delivery.zone}, ${order.delivery.street}, 
@@ -107,23 +116,31 @@ export default function Orders() {
             <tr><th>Item</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr>
           </thead>
           <tbody>
-            ${order.items.map(it => `
+            ${order.items
+              .map(
+                (it) => `
               <tr>
                 <td>${it.name}</td>
                 <td>${it.qty}</td>
                 <td>${formatQAR(it.price)}</td>
                 <td class="right">${formatQAR(it.price * it.qty)}</td>
               </tr>
-            `).join("")}
+            `
+              )
+              .join("")}
           </tbody>
         </table>
 
-        <h3 class="right">Total: ${formatQAR(order.total)}</h3>
-        <p><strong>Payment:</strong> ${order.payment === "cash" ? "Cash on Delivery" : "Card"}</p>
+        <p class="right total">Total: ${formatQAR(order.total)}</p>
+        <p><strong>Payment:</strong> ${
+          order.payment === "cash" ? "Cash on Delivery" : "Card"
+        }</p>
         <p><strong>Status:</strong> ${order.status}</p>
 
-        <hr />
-        <p style="text-align:center; font-size:0.9rem;">Thank you for ordering with us!</p>
+        <div class="footer">
+          <p>✨ Thank you for ordering with Nadan Ruchi! ✨</p>
+          <p>Hotline: +974 55 5555 55 | www.nadanruchi.qa</p>
+        </div>
       </body>
       </html>
     `);
@@ -150,82 +167,102 @@ export default function Orders() {
     alert("✅ Review submitted!");
   };
 
+  // Filter & sort orders
+  const filteredOrders = orders
+    .filter((o) => (filterStatus === "all" ? true : o.status === filterStatus))
+    .sort((a, b) => {
+      if (sortOption === "newest") return new Date(b.date) - new Date(a.date);
+      if (sortOption === "oldest") return new Date(a.date) - new Date(b.date);
+      if (sortOption === "high") return b.total - a.total;
+      if (sortOption === "low") return a.total - b.total;
+      return 0;
+    });
+
   return (
     <div className="container">
       <h2>My Orders</h2>
-      {orders.length === 0 ? (
-        <p className="muted">No past orders yet.</p>
+
+      {/* Filter & Sort Controls */}
+      <div style={{ marginBottom: "1rem", display: "flex", gap: "1rem" }}>
+        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+          <option value="all">All</option>
+          {Object.keys(statusStyles).map((s) => (
+            <option key={s} value={s}>
+              {statusStyles[s].label}
+            </option>
+          ))}
+        </select>
+
+        <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="high">Total High → Low</option>
+          <option value="low">Total Low → High</option>
+        </select>
+      </div>
+
+      {filteredOrders.length === 0 ? (
+        <p className="muted">No orders found.</p>
       ) : (
         <div className="grid">
-          {orders
-            .slice()
-            .reverse()
-            .map((o, i) => {
-              const st = statusStyles[o.status] || statusStyles.pending;
-              return (
-                <div
-                  key={o.id}
-                  className={`card order-card ${st.animation}`}
-                  style={{ borderLeft: `6px solid ${st.color}` }}
-                >
-                  <h3>Order #{i + 1}</h3>
-                  <ul>
-                    {o.items.map((it) => (
-                      <li key={it.id}>
-                        {it.qty} × {it.name} — {formatQAR(it.price * it.qty)}
-                      </li>
-                    ))}
-                  </ul>
-                  <p><strong>Total:</strong> {formatQAR(o.total)}</p>
-                  <p>
-                    <strong>Delivery:</strong> {o.delivery.zone}, {o.delivery.street}, 
-                    Bldg {o.delivery.building}, {o.delivery.area}
-                  </p>
-                  <p><strong>Payment:</strong> {o.payment === "cash" ? "Cash on Delivery" : "Card"}</p>
-                  <p>
-                    <strong>Status:</strong>{" "}
-                    <span
-                      className="status-badge"
-                      style={{
-                        backgroundColor: st.color,
-                        padding: "0.3rem 0.6rem",
-                        borderRadius: "0.4rem",
-                        color: "white",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {st.label}
-                    </span>
-                  </p>
-                  {o.adminComment && (
-                    <p><strong>Admin Comment:</strong> {o.adminComment}</p>
-                  )}
+          {filteredOrders.map((o) => {
+            const st = statusStyles[o.status] || statusStyles.pending;
+            return (
+              <div
+                key={o.id}
+                className={`card order-card ${st.animation}`}
+                style={{ borderLeft: `6px solid ${st.color}` }}
+              >
+                <h3>Order #{o.id}</h3>
+                <ul>
+                  {o.items.map((it) => (
+                    <li key={it.id}>
+                      {it.qty} × {it.name} — {formatQAR(it.price * it.qty)}
+                    </li>
+                  ))}
+                </ul>
+                <p><strong>Total:</strong> {formatQAR(o.total)}</p>
+                <p>
+                  <strong>Delivery:</strong> {o.delivery.zone}, {o.delivery.street},
+                  Bldg {o.delivery.building}, {o.delivery.area}
+                </p>
+                <p><strong>Payment:</strong> {o.payment === "cash" ? "Cash on Delivery" : "Card"}</p>
+                <p>
+                  <strong>Status:</strong>{" "}
+                  <span
+                    className="status-badge"
+                    style={{
+                      backgroundColor: st.color,
+                      padding: "0.3rem 0.6rem",
+                      borderRadius: "0.4rem",
+                      color: "white",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {st.label}
+                  </span>
+                </p>
+                {o.adminComment && <p><strong>Admin Comment:</strong> {o.adminComment}</p>}
 
-                  {o.status === "pending" && (
-                    <button
-                      className="btn outline"
-                      onClick={() => cancelOrder(o.id)}
-                    >
-                      Cancel Order
+                {o.status === "pending" && (
+                  <button className="btn outline" onClick={() => cancelOrder(o.id)}>
+                    Cancel Order
+                  </button>
+                )}
+
+                {o.status === "done" && (
+                  <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem" }}>
+                    <button className="btn" onClick={() => generateBill(o)}>
+                      Generate Bill
                     </button>
-                  )}
-
-                  {o.status === "done" && (
-                    <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem" }}>
-                      <button className="btn" onClick={() => generateBill(o)}>
-                        Generate Bill
-                      </button>
-                      <button
-                        className="btn outline"
-                        onClick={() => setReviewModal(o)}
-                      >
-                        Leave Review
-                      </button>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                    <button className="btn outline" onClick={() => setReviewModal(o)}>
+                      Leave Review
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -235,7 +272,10 @@ export default function Orders() {
           className="modal"
           style={{
             position: "fixed",
-            top: 0, left: 0, right: 0, bottom: 0,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             background: "rgba(0,0,0,0.6)",
             display: "flex",
             alignItems: "center",

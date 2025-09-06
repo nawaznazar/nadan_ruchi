@@ -34,8 +34,8 @@ export default function AdminDashboard() {
   const { items, upsert, del } = useAdminMenu();
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState(null);
-  const [resetMsg, setResetMsg] = useState(null);
   const [saveMsg, setSaveMsg] = useState(null);
+  const [resetMsg, setResetMsg] = useState(null);
   const navigate = useNavigate();
 
   const filtered = useMemo(
@@ -52,14 +52,19 @@ export default function AdminDashboard() {
   if (user?.role !== "admin") return null;
 
   const handleEditClick = (itemId) => setEditingId(itemId);
+
   const handleSave = (updatedItem) => {
-    upsert({
+    const itemToSave = {
       ...updatedItem,
       price: Number(updatedItem.price),
       spicy: updatedItem.spicy === "" ? 0 : Number(updatedItem.spicy),
-    });
+      unavailable: !!updatedItem.unavailable,
+      highlight: updatedItem.unavailable ? false : updatedItem.highlight,
+    };
+    upsert(itemToSave);
+    window.dispatchEvent(new Event("menu-updated"));
     setEditingId(null);
-    setSaveMsg(`✅ ${updatedItem.name} saved!`);
+    setSaveMsg(`✅ ${itemToSave.name} saved!`);
     setTimeout(() => setSaveMsg(null), 2500);
   };
 
@@ -84,19 +89,15 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div
-      className="container"
-      style={{ display: "flex", flexDirection: "column", gap: "2rem" }}
-    >
-      {/* ================= TOAST ================= */}
+    <div className="container" style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
       {saveMsg && (
         <div
           style={{
             position: "fixed",
             top: "1rem",
             right: "1rem",
-            backgroundColor: "var(--success-bg, #4BB543)",
-            color: "var(--success-text, white)",
+            backgroundColor: "#4BB543",
+            color: "white",
             padding: "0.6rem 1rem",
             borderRadius: "6px",
             fontSize: "0.9rem",
@@ -109,31 +110,26 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* ================= VIEW ALL ORDERS SECTION ================= */}
+      {/* Orders & Money Management Links */}
       <section>
-        <h2>📦 View All Orders</h2>
-        <button
-          className="btn outline"
-          style={{ marginBottom: "1rem" }}
-          onClick={() => navigate("/admin/orders")}
-        >
-          Go to Orders
-        </button>
+        <h2>📦 View Orders & 💰 Money Management</h2>
+        <div className="row" style={{ gap: "1rem", marginBottom: "1rem" }}>
+          <button className="btn outline" onClick={() => navigate("/admin/orders")}>
+            Go to Orders
+          </button>
+          <button className="btn outline" onClick={() => navigate("/admin/money")}>
+            💰 Money Management
+          </button>
+        </div>
       </section>
 
-      {/* ================= MANAGE MENU SECTION ================= */}
+      {/* Manage Menu */}
       <section>
         <h2>🍴 Manage Menu</h2>
-
         <div className="row" style={{ marginBottom: "1rem" }}>
-          <input
-            placeholder="Search items…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <input placeholder="Search items…" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
 
-        {/* Add New Item Card */}
         {editingId === "new" ? (
           <InlineEditForm
             item={{
@@ -146,6 +142,7 @@ export default function AdminDashboard() {
               img: "",
               desc: "",
               highlight: false,
+              unavailable: false,
             }}
             onCancel={() => setEditingId(null)}
             onSave={(item) => handleSave({ ...item, id: generateId() })}
@@ -158,7 +155,6 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Existing Items */}
         <div className="grid" style={{ gap: "1rem" }}>
           {filtered.map((item) => (
             <ItemCard
@@ -173,25 +169,22 @@ export default function AdminDashboard() {
         </div>
       </section>
 
-      {/* ================= RESET APP DATA SECTION ================= */}
+      {/* Settings */}
       <section>
         <h2>⚠️ Settings</h2>
-
         <div className="card" style={{ marginTop: "0.5rem", padding: "1rem" }}>
           <p style={{ marginBottom: "0.8rem" }}>
             Reset all app data (menu, orders, reviews, highlights, users).
           </p>
-
           <button className="btn outline" onClick={resetAppData}>
             Reset App Data
           </button>
-
           {resetMsg && (
             <div
               style={{
                 marginTop: "0.8rem",
-                backgroundColor: "var(--warning-bg, #e67e22)",
-                color: "var(--warning-text, #fff)",
+                backgroundColor: "#e67e22",
+                color: "#fff",
                 padding: "0.5rem 0.9rem",
                 borderRadius: "5px",
                 fontSize: "0.85rem",
@@ -217,165 +210,88 @@ export default function AdminDashboard() {
   );
 }
 
-// ================== ITEM CARD COMPONENT ==================
 function ItemCard({ item, onEdit, onDelete, isEditing, onSave }) {
+  const isUnavailable = item.unavailable;
+
   return (
-    <div className="card" style={{ padding: "1rem", position: "relative" }}>
+    <div className="card" style={{ padding: "1rem", position: "relative", opacity: isUnavailable ? 0.5 : 1, filter: isUnavailable ? "grayscale(70%)" : "none" }}>
+      {isUnavailable && (
+        <span style={{ position: "absolute", top: "0.5rem", right: "0.5rem", background: "red", color: "white", fontSize: "0.7rem", padding: "0.2rem 0.5rem", borderRadius: "4px" }}>
+          Unavailable
+        </span>
+      )}
+
       <strong>{item.name}</strong>
-      <div className="muted">
-        {item.category} • {item.veg ? "Veg" : "Non-veg"}
-      </div>
-      {item.spicy > 0 && (
-        <div style={{ color: "tomato" }}>Spicy Level: {item.spicy}</div>
-      )}
-      {item.img && (
-        <img
-          src={item.img}
-          alt={item.name}
-          style={{
-            width: "200px",
-            height: "150px",
-            objectFit: "cover",
-            borderRadius: "0.5rem",
-            marginTop: "0.5rem",
-          }}
-        />
-      )}
-      {item.highlight && (
-        <div style={{ marginTop: "0.5rem" }}>
-          <span className="tag primary">Today’s Highlight</span>
-        </div>
-      )}
+      <div className="muted">{item.category} • {item.veg ? "Veg" : "Non-veg"}</div>
+      {item.spicy > 0 && <div style={{ color: "tomato" }}>Spicy Level: {item.spicy}</div>}
+      {item.img && <img src={item.img} alt={item.name} style={{ width: "200px", height: "150px", objectFit: "cover", borderRadius: "0.5rem", marginTop: "0.5rem" }} />}
+      {item.highlight && !isUnavailable && <div style={{ marginTop: "0.5rem" }}><span className="tag primary">Today’s Highlight</span></div>}
 
       <div className="row" style={{ marginTop: ".6rem" }}>
-        <button className="btn outline" onClick={() => onEdit(item.id)}>
-          Edit
-        </button>
-        <button className="btn outline" onClick={() => onDelete(item.id)}>
-          Delete
-        </button>
+        <button className="btn outline" onClick={() => onEdit(item.id)}>Edit</button>
+        <button className="btn outline" onClick={() => onDelete(item.id)}>Delete</button>
       </div>
 
-      {isEditing && (
-        <InlineEditForm
-          item={item}
-          onCancel={() => onEdit(null)}
-          onSave={onSave}
-        />
-      )}
+      {isEditing && <InlineEditForm item={item} onCancel={() => onEdit(null)} onSave={onSave} />}
     </div>
   );
 }
 
-// ================== INLINE ADD/EDIT FORM ==================
 function InlineEditForm({ item, onCancel, onSave }) {
   const [form, setForm] = useState(item);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.name) return alert("Name is required");
-    if (!form.price || Number(form.price) <= 0)
-      return alert("Price must be greater than 0");
-
+    if (!form.price || Number(form.price) <= 0) return alert("Price must be greater than 0");
     onSave({
       ...form,
       price: Number(form.price),
       spicy: form.spicy === "" ? 0 : Number(form.spicy),
+      unavailable: !!form.unavailable,
+      highlight: form.unavailable ? false : form.highlight,
     });
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        marginTop: "1rem",
-        borderTop: "1px solid #ccc",
-        paddingTop: "1rem",
-      }}
-    >
-      <div
-        className="grid"
-        style={{
-          gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))",
-          gap: "1rem",
-        }}
-      >
-        <input
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          placeholder="Name"
-          required
-        />
-        <select
-          value={form.category}
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
-        >
+    <form onSubmit={handleSubmit} style={{ marginTop: "1rem", borderTop: "1px solid #ccc", paddingTop: "1rem" }}>
+      <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: "1rem" }}>
+        <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" required />
+        <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
           <option>Breakfast</option>
           <option>Lunch</option>
           <option>Evening Snacks</option>
           <option>Dinner</option>
         </select>
-        <input
-          type="number"
-          step="0.01"
-          value={form.price}
-          onChange={(e) => setForm({ ...form, price: e.target.value })}
-          placeholder="Price"
-          required
-        />
-        <select
-          value={form.spicy}
-          onChange={(e) => setForm({ ...form, spicy: e.target.value })}
-        >
+        <input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Price" required />
+        <select value={form.spicy} onChange={(e) => setForm({ ...form, spicy: e.target.value })}>
           <option value="">Select Spicy Level</option>
-          {[0, 1, 2, 3, 4, 5].map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
+          {[0,1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
         </select>
-        <select
-          value={form.veg ? "true" : "false"}
-          onChange={(e) =>
-            setForm({ ...form, veg: e.target.value === "true" })
-          }
-        >
+        <select value={form.veg ? "true" : "false"} onChange={(e) => setForm({ ...form, veg: e.target.value === "true" })}>
           <option value="true">Veg</option>
           <option value="false">Non-veg</option>
         </select>
-        <input
-          value={form.img}
-          onChange={(e) => setForm({ ...form, img: e.target.value })}
-          placeholder="Image URL"
-        />
-        <input
-          value={form.desc}
-          onChange={(e) => setForm({ ...form, desc: e.target.value })}
-          placeholder="Description"
-        />
+        <input value={form.img} onChange={(e) => setForm({ ...form, img: e.target.value })} placeholder="Image URL" />
+        <input value={form.desc} onChange={(e) => setForm({ ...form, desc: e.target.value })} placeholder="Description" />
       </div>
 
-      <div style={{ marginTop: "1rem" }}>
+      <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
         <label className="toggle-label">
-          <input
-            type="checkbox"
-            checked={form.highlight}
-            onChange={(e) =>
-              setForm({ ...form, highlight: e.target.checked })
-            }
-          />
+          <input type="checkbox" checked={form.highlight && !form.unavailable} disabled={form.unavailable} onChange={(e) => setForm({ ...form, highlight: e.target.checked })} />
           <span className="slider"></span>
           Today’s Highlight
+        </label>
+        <label className="toggle-label">
+          <input type="checkbox" checked={form.unavailable || false} onChange={(e) => setForm({ ...form, unavailable: e.target.checked, highlight: e.target.checked ? false : form.highlight })} />
+          <span className="slider"></span>
+          Mark Unavailable
         </label>
       </div>
 
       <div className="row" style={{ marginTop: "0.5rem", gap: "0.5rem" }}>
-        <button className="btn" type="submit">
-          Save Changes
-        </button>
-        <button className="btn outline" type="button" onClick={onCancel}>
-          Cancel
-        </button>
+        <button className="btn" type="submit">Save Changes</button>
+        <button className="btn outline" type="button" onClick={onCancel}>Cancel</button>
       </div>
     </form>
   );

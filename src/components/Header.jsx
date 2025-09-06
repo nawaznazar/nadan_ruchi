@@ -25,6 +25,7 @@ export default function Header() {
     <>
       <NavLink to="/admin/orders">📦 Orders</NavLink>
       <NavLink to="/admin">Admin Dashboard</NavLink>
+      <NavLink to="/admin/money">💰 Money Management</NavLink> {/* NEW LINK */}
     </>
   );
 
