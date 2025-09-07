@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
   const [img, setImg] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -21,7 +23,14 @@ export default function Register() {
     reader.readAsDataURL(file);
   };
 
-  // Password strength checker
+  // Validate and format Qatar contact number input
+  const handleContactChange = (e) => {
+    // Only allow digits and limit to 8 characters
+    const val = e.target.value.replace(/\D/g, "").slice(0, 8);
+    setContactNumber(val);
+  };
+
+  // Calculate password strength for user feedback
   const getPasswordStrength = () => {
     if (password.length >= 8 && /[A-Z]/.test(password) && /\d/.test(password)) return "Strong";
     if (password.length >= 6) return "Medium";
@@ -29,22 +38,42 @@ export default function Register() {
     return "";
   };
 
+  // Handle form submission
   const submit = (e) => {
     e.preventDefault();
+    setError("");
 
+    // Validate password confirmation
+    if (password !== confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+
+    // Validate Qatar phone number format
+    if (contactNumber.length !== 8) {
+      setError("Contact number must be exactly 8 digits.");
+      return;
+    }
+
+    // Check if user already exists
     const users = JSON.parse(localStorage.getItem("nr_registered_users") || "[]");
     if (users.find((u) => u.email === email)) {
       setError("User already exists!");
       return;
     }
 
-    const newUser = { name, email, password, role: "customer", img };
+    // Format full phone number with Qatar country code
+    const fullNumber = "+974" + contactNumber;
+
+    // Create new user object and save to localStorage
+    const newUser = { name, email, password, role: "customer", img, contactNumber: fullNumber };
     users.push(newUser);
     localStorage.setItem("nr_registered_users", JSON.stringify(users));
 
-    // Auto login
+    // Automatically log in the new user
     login(email, password);
 
+    // Show success message and redirect
     setSuccess(true);
     setTimeout(() => {
       setSuccess(false);
@@ -60,17 +89,13 @@ export default function Register() {
       <form
         className="card"
         onSubmit={submit}
-        style={{
-          padding: "2rem",
-          maxWidth: "400px",
-          width: "100%",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-          borderRadius: "10px",
-        }}
+        style={{ padding: "2rem", maxWidth: "400px", width: "100%" }}
       >
-        <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>Register</h2>
+        <h2 style={{ textAlign: "center", marginBottom: "1rem", color: "var(--primary)" }}>
+          Register
+        </h2>
 
-        {/* Profile Image */}
+        {/* Profile image upload section */}
         <div style={{ textAlign: "center", marginBottom: "1rem" }}>
           <img
             src={img || "/img/default-profile.png"}
@@ -87,44 +112,55 @@ export default function Register() {
           <input type="file" accept="image/*" onChange={handleFileChange} />
         </div>
 
-        {/* Name */}
-        <label style={{ position: "relative", marginBottom: "1rem", display: "block" }}>
-          <span style={{ fontWeight: "bold" }}>Name</span>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            style={{ width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
-          />
+        {/* Name input field */}
+        <label>
+          Name
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
         </label>
 
-        {/* Email */}
-        <label style={{ position: "relative", marginBottom: "1rem", display: "block" }}>
-          <span style={{ fontWeight: "bold" }}>Email</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
-          />
+        {/* Email input field */}
+        <label>
+          Email
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </label>
 
-        {/* Password */}
-        <label style={{ position: "relative", marginBottom: "1rem", display: "block" }}>
-          <span style={{ fontWeight: "bold" }}>Password</span>
+        {/* Qatar phone number input with country code prefix */}
+        <label>
+          Contact Number
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <span
+              style={{
+                padding: "0.5rem",
+                background: "#f0f0f0",
+                border: "1px solid #ccc",
+                borderRadius: "4px 0 0 4px",
+              }}
+            >
+              +974
+            </span>
+            <input
+              type="text"
+              value={contactNumber}
+              onChange={handleContactChange}
+              required
+              style={{ flex: 1, borderRadius: "0 4px 4px 0", padding: "0.5rem" }}
+              placeholder="8-digit number"
+            />
+          </div>
+        </label>
+
+        {/* Password input with strength indicator */}
+        <label>
+          Password
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{ width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
           />
           {password && (
             <div
               style={{
-                marginTop: "0.25rem",
                 fontSize: "0.85rem",
                 color:
                   getPasswordStrength() === "Strong"
@@ -139,36 +175,46 @@ export default function Register() {
           )}
         </label>
 
-        {error && <p className="muted" style={{ color: "red", marginBottom: "0.5rem" }}>{error}</p>}
+        {/* Password confirmation field */}
+        <label>
+          Confirm Password
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+        </label>
 
-        <button
-          className="btn"
-          type="submit"
-          style={{ width: "100%", marginTop: "1rem", padding: "0.7rem" }}
-        >
+        {/* Error message display */}
+        {error && (
+          <p className="muted" style={{ color: "var(--danger)" }}>
+            {error}
+          </p>
+        )}
+
+        {/* Registration submit button */}
+        <button className="btn" type="submit" style={{ width: "100%", marginTop: "1rem" }}>
           Register
         </button>
 
-        {/* Success popup */}
-        {success && (
-          <div
-            style={{
-              position: "fixed",
-              bottom: "20px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              background: "#4ade80",
-              color: "#065f46",
-              padding: "1rem 2rem",
-              borderRadius: "8px",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-              opacity: 1,
-              zIndex: 1000,
-            }}
-          >
-            Registration successful! Redirecting...
-          </div>
-        )}
+        {/* Link to login page for existing users */}
+        <p
+          style={{
+            marginTop: "1rem",
+            color: "var(--muted)",
+            fontSize: "0.9rem",
+            textAlign: "center",
+          }}
+        >
+          Already have an account?{" "}
+          <Link to="/login" style={{ color: "var(--primary)" }}>
+            Login
+          </Link>
+        </p>
+
+        {/* Success notification toast */}
+        {success && <div className="toast">Registration successful! Redirecting...</div>}
       </form>
     </div>
   );

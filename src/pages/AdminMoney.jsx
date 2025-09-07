@@ -16,6 +16,7 @@ export default function AdminMoney() {
   const [collapsedDates, setCollapsedDates] = useState({});
   const [activeQuickFilter, setActiveQuickFilter] = useState("");
 
+  // Load orders data when admin user is authenticated
   useEffect(() => {
     if (user?.role === "admin") {
       const data = JSON.parse(localStorage.getItem("nr_orders") || "[]");
@@ -23,6 +24,7 @@ export default function AdminMoney() {
     }
   }, [user]);
 
+  // Restrict access to admin users only
   if (!user || user.role !== "admin") {
     return <div className="container"><p>⛔ Access denied. Admins only.</p></div>;
   }
@@ -32,6 +34,7 @@ export default function AdminMoney() {
     const today = new Date();
     let start, end;
 
+    // Calculate date ranges for quick filter options
     if (option === "today") start = end = new Date(today);
     else if (option === "yesterday") {
       const y = new Date(today);
@@ -60,6 +63,7 @@ export default function AdminMoney() {
       end = new Date(today.getFullYear(), today.getMonth(), 0);
     }
 
+    // Apply the calculated date range
     setStartDate(start.toISOString().split("T")[0]);
     setEndDate(end.toISOString().split("T")[0]);
     setActiveQuickFilter(option);
@@ -69,11 +73,15 @@ export default function AdminMoney() {
   const filteredOrders = useMemo(() => {
     let data = [...orders];
 
+    // Apply date range filters
     if (startDate) data = data.filter(o => new Date(o.date) >= new Date(startDate));
     if (endDate) data = data.filter(o => new Date(o.date) <= new Date(endDate));
+    
+    // Apply status and payment method filters
     if (filterStatus !== "all") data = data.filter(o => o.status === filterStatus);
     if (filterPayment !== "all") data = data.filter(o => o.payment === filterPayment);
 
+    // Apply search filter across customer info and items
     if (search.trim()) {
       const lower = search.toLowerCase();
       data = data.filter(o =>
@@ -84,6 +92,7 @@ export default function AdminMoney() {
       );
     }
 
+    // Sort data based on selected field and order
     data.sort((a, b) => {
       let aVal, bVal;
       if (sortField === "date") { aVal = new Date(a.date); bVal = new Date(b.date); }
@@ -98,15 +107,19 @@ export default function AdminMoney() {
     return data;
   }, [orders, startDate, endDate, filterStatus, filterPayment, search, sortField, sortOrder]);
 
-  // ---------------- SUMMARY ----------------
+  // ---------------- SUMMARY STATISTICS ----------------
   const summary = useMemo(() => {
     const stats = { totalRevenue: 0, totalOrders: 0, totalItems: 0, items: {}, cash: 0, card: 0, byStatus: {} };
+    
+    // Calculate various statistics from filtered orders
     filteredOrders.forEach(o => {
       if (o.status === "done") {
         stats.totalRevenue += o.total;
         stats.totalOrders += 1;
         if (o.payment === "cash") stats.cash += o.total;
         else if (o.payment === "card") stats.card += o.total;
+        
+        // Track item-level statistics
         o.items.forEach(i => {
           stats.totalItems += i.qty;
           if (!stats.items[i.name]) stats.items[i.name] = { qty: 0, revenue: 0 };
@@ -114,13 +127,16 @@ export default function AdminMoney() {
           stats.items[i.name].revenue += i.qty * i.price;
         });
       }
+      // Track order status counts
       stats.byStatus[o.status] = (stats.byStatus[o.status] || 0) + 1;
     });
     return stats;
   }, [filteredOrders]);
 
+  // Sort items by quantity sold for top sellers list
   const sortedItems = useMemo(() => Object.entries(summary.items).sort((a, b) => b[1].qty - a[1].qty), [summary.items]);
 
+  // Group orders by date for date-based views
   const ordersByDate = useMemo(() => {
     const grouped = {};
     filteredOrders.forEach(o => {
@@ -131,15 +147,17 @@ export default function AdminMoney() {
     return grouped;
   }, [filteredOrders]);
 
+  // Toggle collapse/expand for date groups
   const toggleCollapse = (date) => setCollapsedDates(prev => ({ ...prev, [date]: !prev[date] }));
 
-  // ---------------- CHART DATA ----------------
+  // ---------------- CHART DATA PREPARATION ----------------
   const paymentData = [
     { name: "Cash", value: summary.cash },
     { name: "Card", value: summary.card }
   ];
   const COLORS = ["#32cd32", "#1e90ff"];
 
+  // Prepare revenue trend data for line chart
   const revenueTrend = Object.entries(ordersByDate).map(([date, os]) => ({
     date,
     revenue: os.filter(o => o.status === "done").reduce((sum, o) => sum + o.total, 0)
@@ -150,7 +168,7 @@ export default function AdminMoney() {
     <div className="container">
       <h2>💰 Advanced Money Management & Sales Overview</h2>
 
-      {/* Quick Filters */}
+      {/* Quick date range filters */}
       <div className="row quick-filters" style={{ gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         {["today","yesterday","thisWeek","lastWeek","thisMonth","lastMonth"].map(opt => (
           <button
@@ -163,7 +181,7 @@ export default function AdminMoney() {
         ))}
       </div>
 
-      {/* Filters */}
+      {/* Advanced filtering options */}
       <div className="row" style={{ gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <input type="text" placeholder="🔍 Search by customer/order/item..." value={search} onChange={e => setSearch(e.target.value)} style={{ flex: "1", padding: "0.5rem" }} />
         <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
@@ -193,7 +211,7 @@ export default function AdminMoney() {
         </select>
       </div>
 
-      {/* Summary */}
+      {/* Summary statistics cards */}
       <div className="grid" style={{ gap: "1rem", marginBottom: "1rem" }}>
         <div className="card summary-card revenue"><h3>Total Revenue</h3><p>{formatQAR(summary.totalRevenue)}</p></div>
         <div className="card summary-card orders"><h3>Total Orders</h3><p>{summary.totalOrders}</p></div>
@@ -202,7 +220,7 @@ export default function AdminMoney() {
         <div className="card summary-card card"><h3>Card</h3><p>{formatQAR(summary.card)}</p></div>
       </div>
 
-      {/* Charts */}
+      {/* Data visualization charts */}
       <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
         <div className="card"><h4>Payment Breakdown</h4>
           <PieChart width={300} height={250}>
@@ -221,7 +239,7 @@ export default function AdminMoney() {
         </div>
       </div>
 
-      {/* Top Selling Items */}
+      {/* Top selling items list */}
       <div className="card" style={{ marginTop: "1rem" }}>
         <h4>🏆 Top Selling Items</h4>
         <ul>
@@ -233,7 +251,7 @@ export default function AdminMoney() {
         </ul>
       </div>
 
-      {/* Orders By Date */}
+      {/* Orders grouped by date with collapsible sections */}
       {Object.entries(ordersByDate).map(([date, orders]) => (
         <div key={date} className="card" style={{ marginBottom: "1rem", padding: "1rem" }}>
           <h3 style={{ cursor: "pointer" }} onClick={() => toggleCollapse(date)}>

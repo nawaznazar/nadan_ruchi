@@ -11,19 +11,20 @@ export default function Home() {
   const [rating, setRating] = useState(5);
   const [highlights, setHighlights] = useState([]);
 
-  // Load reviews
+  // Load customer reviews from localStorage
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("nr_reviews") || "[]");
     setReviews(data);
   }, []);
 
-  // Load admin-highlighted menu items
+  // Load today's highlighted menu items from admin settings
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     const todayHighlights = data.filter(item => item.highlight);
     setHighlights(todayHighlights);
   }, []);
 
+  // Add a new customer review
   const addReview = () => {
     if (!user) return alert("Please login to leave a review.");
     if (!text.trim()) return;
@@ -45,7 +46,7 @@ export default function Home() {
 
   return (
     <div className="container">
-      {/* Hero Section */}
+      {/* Hero Section with main branding */}
       <section className="hero">
         <div className="hero-content">
           <h1>
@@ -61,13 +62,13 @@ export default function Home() {
           </div>
         </div>
         <div className="hero-image">
-          <img src="https://assets.traveltriangle.com/blog/wp-content/uploads/2017/10/kerala-food.jpg" alt="Kerala Food"/>
+          <img src="https://assets.traveltriangle.com/blog/wp-content/uploads/2017/10/kerala-food.jpg" alt="Traditional Kerala cuisine"/>
         </div>
       </section>
 
-      {/* Today’s Highlights */}
+      {/* Today's Special Highlights Section */}
       <section style={{ marginTop: "3rem" }}>
-        <h2>Today’s Highlights</h2>
+        <h2>Today's Highlights</h2>
         <div className="grid" style={{ marginTop: "1rem" }}>
           {highlights.length === 0 ? (
             <p className="muted">No highlights today.</p>
@@ -77,7 +78,7 @@ export default function Home() {
                 {item.img && (
                   <div className="highlight-img-wrapper">
                     <img src={item.img} alt={item.name} className="highlight-img" />
-                    <span className="ribbon">🔥 Today’s Highlight</span>
+                    <span className="ribbon">🔥 Today's Highlight</span>
                   </div>
                 )}
                 <h3>{item.name}</h3>
@@ -94,9 +95,10 @@ export default function Home() {
         )}
       </section>
 
-      {/* Reviews Section */}
+      {/* Customer Reviews Section */}
       <section style={{ marginTop: "3rem" }}>
         <h2>Customer Reviews</h2>
+        {/* Review submission form for logged-in users */}
         {user && (
           <div className="card" style={{ margin: "1rem 0" }}>
             <h4>Leave a Review</h4>
@@ -117,6 +119,7 @@ export default function Home() {
             </div>
           </div>
         )}
+        {/* Display existing reviews */}
         {reviews.length === 0 ? (
           <p className="muted">No reviews yet. Be the first to share!</p>
         ) : (
@@ -137,7 +140,7 @@ export default function Home() {
         )}
       </section>
 
-      {/* CTA Section */}
+      {/* Call to Action Section */}
       <section style={{ margin: "4rem 0", textAlign: "center" }}>
         <h2 style={{ marginBottom: "1rem" }}>Hungry Already?</h2>
         <p className="muted">

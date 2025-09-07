@@ -7,48 +7,59 @@ import { fakeApi } from "../data/fakeApi.js";
 import { useTheme } from "../context/ThemeContext.jsx";
 
 export default function Checkout() {
+  // Access cart, authentication, and theme functionality
   const { items, total, clear } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { theme } = useTheme();
 
+  // State for delivery address components
   const [zones, setZones] = useState([]);
   const [streets, setStreets] = useState([]);
   const [buildings, setBuildings] = useState([]);
 
+  // State for delivery details
   const [zone, setZone] = useState("");
   const [street, setStreet] = useState("");
   const [building, setBuilding] = useState("");
   const [area, setArea] = useState("");
 
+  // State for contact and special instructions
   const [contact, setContact] = useState("");
   const [specialNote, setSpecialNote] = useState("");
 
+  // State for payment information
   const [payment, setPayment] = useState("cash");
   const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "" });
 
+  // State for UI feedback
   const [error, setError] = useState("");
   const [processing, setProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // Fetch location data when component mounts or dependencies change
   useEffect(() => { fakeApi.getZones().then(setZones); }, []);
   useEffect(() => { if (!zone) return; fakeApi.getStreets(zone).then(setStreets); setStreet(""); setBuildings([]); }, [zone]);
   useEffect(() => { if (!zone || !street) return; fakeApi.getBuildings(zone, street).then(setBuildings); setBuilding(""); }, [street]);
 
+  // Require user authentication for checkout
   if (!user) return <div className="container"><p>Please login to place an order.</p></div>;
 
+  // Format credit card number with spaces
   const handleCardNumber = val => {
     const clean = val.replace(/\D/g, "").slice(0, 16);
     const formatted = clean.replace(/(\d{4})(?=\d)/g, "$1 ");
     setCard({ ...card, number: formatted });
   };
 
+  // Format expiration date as MM/YY
   const handleExpiry = val => {
     const clean = val.replace(/\D/g, "").slice(0, 4);
     const formatted = clean.length > 2 ? `${clean.slice(0,2)}/${clean.slice(2)}` : clean;
     setCard({ ...card, expiry: formatted });
   };
 
+  // Validate credit card details
   const validateCard = () => {
     const number = card.number.replace(/\s/g,"");
     if(number.length!==16) return "Card number must be 16 digits.";
@@ -59,11 +70,13 @@ export default function Checkout() {
     return "";
   };
 
+  // Validate Qatar contact number format
   const validateContact = () => {
     if(contact.length !== 8) return "Enter 8 digits after +974.";
     return "";
   };
 
+  // Process order placement with validation
   const handlePlaceOrder = () => {
     if(!zone||!street||!building){ setError("Please select full delivery details."); return; }
     const contactError = validateContact(); if(contactError){ setError(contactError); return; }
@@ -71,6 +84,7 @@ export default function Checkout() {
     if(payment==="card"){ const cardError = validateCard(); if(cardError){ setError(cardError); return; } }
     setError(""); setProcessing(true);
 
+    // Simulate order processing and save to localStorage
     setTimeout(()=>{
       const orders = JSON.parse(localStorage.getItem("nr_orders")||"[]");
       const newOrder = {
@@ -90,7 +104,7 @@ export default function Checkout() {
     <div className="container" style={{marginTop:"1rem"}}>
       <h2>Checkout</h2>
 
-      {/* Order Summary */}
+      {/* Order summary section */}
       <div className="card hover-card">
         <h3>Order Summary</h3>
         {items.length===0?<p className="muted">Your cart is empty.</p>:
@@ -109,7 +123,7 @@ export default function Checkout() {
         }
       </div>
 
-      {/* Delivery Details */}
+      {/* Delivery details section */}
       <div className="card" style={{marginTop:"1.5rem"}}>
         <h3>Delivery Details</h3>
         <div className="row" style={{flexWrap:"wrap", gap:"0.5rem"}}>
@@ -156,7 +170,7 @@ export default function Checkout() {
           }}
         />
 
-        {/* Modern Payment Options */}
+        {/* Payment method selection */}
         <h3 style={{marginTop:"1rem"}}>Payment</h3>
         <div className="row" style={{gap:"1rem"}}>
           {["cash","card"].map(opt=>{
@@ -198,6 +212,7 @@ export default function Checkout() {
           })}
         </div>
 
+        {/* Credit card details form (shown when card payment selected) */}
         {payment==="card" && (
           <div style={{
             marginTop:"1rem",
@@ -216,8 +231,10 @@ export default function Checkout() {
           </div>
         )}
 
+        {/* Error message display */}
         {error && <p style={{color:"red", marginTop:"0.5rem"}}>{error}</p>}
 
+        {/* Place order button */}
         <div className="row" style={{marginTop:"1rem", justifyContent:"flex-end"}}>
           <button className="btn" onClick={handlePlaceOrder} disabled={processing||items.length===0}>
             {processing?"Processing...":"Place Order"}
@@ -225,12 +242,13 @@ export default function Checkout() {
         </div>
       </div>
 
+      {/* Success confirmation popup */}
       {showSuccess && (
         <div className="popup-overlay">
           <div className="popup-card" style={{background:"var(--card)"}}>
             <div className="checkmark">✔</div>
             <h2 style={{color:"var(--text)"}}>Order Placed!</h2>
-            <p style={{color:"var(--text-muted)"}}>Thank you for your order. We’ll process it shortly.</p>
+            <p style={{color:"var(--text-muted)"}}>Thank you for your order. We'll process it shortly.</p>
             <button className="btn btn-primary" onClick={()=>{setShowSuccess(false); navigate("/orders");}}>Go to Orders</button>
           </div>
         </div>

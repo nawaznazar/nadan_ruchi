@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { formatQAR } from "../utils/currency.js";
 
+// Available order status options for dropdown
 const statusOptions = [
   "pending",
   "preparing",
@@ -22,6 +23,7 @@ export default function AdminOrders() {
   const [sortBy, setSortBy] = useState("newest");
   const [search, setSearch] = useState("");
 
+  // Load orders from localStorage when admin user is authenticated
   useEffect(() => {
     if (user?.role === "admin") {
       const data = JSON.parse(localStorage.getItem("nr_orders") || "[]");
@@ -29,6 +31,7 @@ export default function AdminOrders() {
     }
   }, [user]);
 
+  // Restrict access to admin users only
   if (!user || user.role !== "admin") {
     return (
       <div className="container">
@@ -37,7 +40,7 @@ export default function AdminOrders() {
     );
   }
 
-  // ✅ Update Order Status
+  // Update order status and persist to localStorage
   const updateStatus = (id, status) => {
     const all = JSON.parse(localStorage.getItem("nr_orders") || "[]");
     const updated = all.map((o) =>
@@ -45,6 +48,7 @@ export default function AdminOrders() {
         ? {
             ...o,
             status,
+            // Clear admin comment if order is no longer rejected
             ...(status !== "rejected" && { adminComment: "" }),
           }
         : o
@@ -53,14 +57,14 @@ export default function AdminOrders() {
     setOrders(updated);
   };
 
-  // ✅ Open Reject Modal
+  // Open rejection modal for a specific order
   const openRejectModal = (id) => {
     setRejectId(id);
     setComment("");
     setShowModal(true);
   };
 
-  // ✅ Confirm Reject
+  // Confirm order rejection with mandatory comment
   const confirmReject = () => {
     if (!rejectId || !comment.trim()) return;
     const all = JSON.parse(localStorage.getItem("nr_orders") || "[]");
@@ -76,7 +80,7 @@ export default function AdminOrders() {
     setComment("");
   };
 
-  // ✅ Mask Card Number
+  // Mask credit card number for privacy (show only last 4 digits)
   const maskCard = (num) => {
     if (!num) return "—";
     const clean = num.replace(/\s/g, "");
@@ -84,7 +88,7 @@ export default function AdminOrders() {
     return "**** **** **** " + last4;
   };
 
-  // ✅ Generate Styled Bill
+  // Generate printable bill for completed orders
   const generateBill = (order) => {
     const billWindow = window.open("", "_blank", "width=600,height=800");
     billWindow.document.write(`
@@ -158,12 +162,14 @@ export default function AdminOrders() {
     billWindow.print();
   };
 
-  // ✅ Filter, Sort & Search Orders
+  // Filter, sort, and search orders based on user selection
   const filteredOrders = useMemo(() => {
     let data = [...orders];
 
+    // Apply status filter
     if (filter !== "all") data = data.filter((o) => o.status === filter);
 
+    // Apply search filter
     if (search.trim()) {
       data = data.filter((o) =>
         (o.customerName || o.name || o.userName || o.email || "")
@@ -172,6 +178,7 @@ export default function AdminOrders() {
       );
     }
 
+    // Apply sorting
     if (sortBy === "newest") data.sort((a, b) => new Date(b.date) - new Date(a.date));
     else if (sortBy === "oldest") data.sort((a, b) => new Date(a.date) - new Date(b.date));
     else if (sortBy === "amount-high") data.sort((a, b) => b.total - a.total);
@@ -184,14 +191,14 @@ export default function AdminOrders() {
     <div className="container">
       <h2>📦 All Orders (Admin View)</h2>
 
-      {/* 🔍 Search / Filter / Sort Controls */}
+      {/* Search, filter, and sort controls */}
       <div
         className="row"
         style={{ gap: "1rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}
       >
         <input
           type="text"
-          placeholder="Search by customer User ID ..."
+          placeholder="Search by customer name or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{ flex: "1", padding: "0.5rem" }}
@@ -210,7 +217,7 @@ export default function AdminOrders() {
         </select>
       </div>
 
-      {/* 📋 Orders List */}
+      {/* Orders list */}
       {filteredOrders.length === 0 ? (
         <p className="muted">No matching orders found.</p>
       ) : (
@@ -228,7 +235,7 @@ export default function AdminOrders() {
               <p><strong>Delivery:</strong> {o.delivery.zone}, {o.delivery.street}, Bldg {o.delivery.building}, {o.delivery.area}</p>
               <p><strong>Payment:</strong> {o.payment === "cash" ? "Cash on Delivery" : "Card"} ({maskCard(o.card)})</p>
 
-              {/* Order Status */}
+              {/* Order status dropdown */}
               <div style={{ marginTop: ".5rem" }}>
                 <label>
                   <strong>Status:</strong>
@@ -245,7 +252,7 @@ export default function AdminOrders() {
                 </label>
               </div>
 
-              {/* Rejected Orders */}
+              {/* Rejection reason display */}
               {o.status === "rejected" && o.adminComment && (
                 <div style={{ color: "red", fontWeight: "bold", marginTop: ".5rem" }}>
                   <p>ORDER REJECTED</p>
@@ -253,14 +260,14 @@ export default function AdminOrders() {
                 </div>
               )}
 
-              {/* Reject Button */}
+              {/* Reject button for active orders */}
               {o.status !== "rejected" && o.status !== "done" && (
                 <div className="row" style={{ gap: ".5rem", marginTop: ".5rem" }}>
                   <button className="btn danger" onClick={() => openRejectModal(o.id)}>Reject Order</button>
                 </div>
               )}
 
-              {/* Generate Bill */}
+              {/* Bill generation for completed orders */}
               {o.status === "done" && (
                 <div className="row" style={{ gap: ".5rem", marginTop: ".5rem" }}>
                   <button className="btn" onClick={() => generateBill(o)}>Generate Bill</button>
@@ -271,13 +278,13 @@ export default function AdminOrders() {
         </div>
       )}
 
-      {/* Reject Modal */}
+      {/* Rejection modal */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal" style={{ background: "var(--card)", color: "var(--text)", padding: "1.5rem", borderRadius: "10px", maxWidth: "500px", margin: "auto" }}>
             <h3>Reject Order</h3>
             <textarea
-              placeholder="Enter rejection comment (mandatory)..."
+              placeholder="Enter rejection reason (required)..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows="4"

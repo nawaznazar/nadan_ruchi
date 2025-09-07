@@ -5,15 +5,18 @@ import { useAuth } from "../context/AuthContext.jsx";
 import DarkModeToggle from "./DarkModeToggle.jsx";
 
 export default function Header() {
+  // Access cart data and authentication state
   const { items } = useCart();
   const { user, logout } = useAuth();
+  
+  // Calculate total quantity of items in cart
   const qty = items.reduce((s, i) => s + i.qty, 0);
 
-  // Function to add nav-link class with active
+  // Helper function to apply active class to current navigation link
   const navClass = ({ isActive }) =>
-    isActive ? "nav-link active" : "nav-link";
+    `nav-link ${isActive ? "active" : ""}`;
 
-  // Customer links
+  // Navigation links for regular customers
   const customerLinks = (
     <>
       <NavLink to="/" end className={navClass}>Home</NavLink>
@@ -24,7 +27,7 @@ export default function Header() {
     </>
   );
 
-  // Admin links
+  // Navigation links for admin users
   const adminLinks = (
     <>
       <NavLink to="/admin/orders" className={navClass}>📦 Orders</NavLink>
@@ -33,7 +36,7 @@ export default function Header() {
     </>
   );
 
-  // Guest links
+  // Navigation links for guests (non-logged-in users)
   const guestLinks = (
     <>
       <NavLink to="/" end className={navClass}>Home</NavLink>
@@ -47,43 +50,60 @@ export default function Header() {
     <header>
       <div className="container">
         <nav>
-          {/* Brand */}
+          {/* Brand logo and name */}
           <Link className="brand" to="/">
             <span className="dot"></span> Nadan Ruchi
           </Link>
 
-          {/* Navigation Links */}
+          {/* Navigation menu - shows different links based on user role */}
           <div className="nav-links">
             {!user && guestLinks}
             {user?.role === "customer" && customerLinks}
             {user?.role === "admin" && adminLinks}
           </div>
 
-          {/* Right Side Buttons */}
+          {/* Right-side action buttons and controls */}
           <div className="row">
+            {/* Dark mode toggle button */}
             <DarkModeToggle />
 
-            {/* Cart + My Orders for customers */}
+            {/* Cart and orders buttons (only for customers) */}
             {user?.role === "customer" && (
               <>
-                <NavLink to="/cart" className="btn outline btn-float">
-                  🛒 Cart ({qty})
+                <NavLink
+                  to="/cart"
+                  className="btn outline btn-float relative"
+                >
+                  🛒 Cart
+                  {/* Show cart item count badge if items are in cart */}
+                  {qty > 0 && (
+                    <span className="tag primary absolute -top-2 -right-2 animate-pulse">
+                      {qty}
+                    </span>
+                  )}
                 </NavLink>
-                <NavLink to="/orders" className="btn outline btn-float">
+                <NavLink
+                  to="/orders"
+                  className="btn outline btn-float"
+                >
                   📦 My Orders
                 </NavLink>
               </>
             )}
 
-            {/* Auth Buttons */}
+            {/* Authentication buttons - logout for logged-in users, login/register for guests */}
             {user ? (
-              <button className="btn btn-float" onClick={logout}>
+              <button className="btn btn-float danger" onClick={logout}>
                 Logout
               </button>
             ) : (
               <>
-                <NavLink to="/login" className="btn btn-float">Login</NavLink>
-                <NavLink to="/register" className="btn outline btn-float">Register</NavLink>
+                <NavLink className="btn btn-float" to="/login">
+                  Login
+                </NavLink>
+                <NavLink className="btn outline btn-float" to="/register">
+                  Register
+                </NavLink>
               </>
             )}
           </div>

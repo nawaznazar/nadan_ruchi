@@ -14,7 +14,7 @@ import Profile from "./pages/Profile.jsx";
 import Orders from "./pages/Orders.jsx";              // Customer orders
 import AdminOrders from "./pages/AdminOrders.jsx";   // Admin orders
 import AdminDashboard from "./pages/AdminDashboard.jsx";
-import AdminMoney from "./pages/AdminMoney.jsx";     // New money management page
+import AdminMoney from "./pages/AdminMoney.jsx";     // Financial management page
 import NotFound from "./pages/NotFound.jsx";
 
 import { ThemeProvider } from "./context/ThemeContext.jsx";
@@ -24,18 +24,22 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 export default function App() {
   return (
+    // Wrap application with context providers
     <ThemeProvider>
       <AuthProvider>
         <CartProvider>
+          {/* Global header component */}
           <Header />
+          
+          {/* Main application routing */}
           <Routes>
-            {/* Public Routes */}
+            {/* Public Routes - accessible to all users */}
             <Route path="/" element={<Home />} />
             <Route path="/menu" element={<Menu />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
 
-            {/* Customer-only routes */}
+            {/* Customer-only routes - require customer authentication */}
             <Route
               path="/cart"
               element={
@@ -69,7 +73,7 @@ export default function App() {
               }
             />
 
-            {/* Admin-only routes */}
+            {/* Admin-only routes - require admin privileges */}
             <Route
               path="/admin"
               element={
@@ -95,13 +99,15 @@ export default function App() {
               }
             />
 
-            {/* Auth routes */}
+            {/* Authentication routes - accessible without login */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
-            {/* 404 fallback */}
+            {/* 404 fallback route for undefined paths */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          
+          {/* Global footer component */}
           <Footer />
         </CartProvider>
       </AuthProvider>

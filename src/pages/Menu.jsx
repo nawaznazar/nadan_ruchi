@@ -13,7 +13,7 @@ export default function Menu() {
   const [dynamicMenu, setDynamicMenu] = useState([]);
   const navigate = useNavigate();
 
-  // Load menu from localStorage and listen to updates
+  // Load menu from localStorage and listen to updates from admin
   useEffect(() => {
     const loadMenu = () => {
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -22,6 +22,7 @@ export default function Menu() {
 
     loadMenu();
 
+    // Set up event listeners for menu updates
     const onStorageChange = (e) => {
       if (e.key === STORAGE_KEY) loadMenu();
     };
@@ -30,15 +31,17 @@ export default function Menu() {
     window.addEventListener("storage", onStorageChange);
     window.addEventListener("menu-updated", onMenuUpdated);
 
+    // Clean up event listeners
     return () => {
       window.removeEventListener("storage", onStorageChange);
       window.removeEventListener("menu-updated", onMenuUpdated);
     };
   }, []);
 
+  // Find item in cart by ID
   const getCartItem = (id) => cartItems.find((i) => i.id === id);
 
-  // Merge MENU with dynamicMenu updates
+  // Merge static MENU data with dynamic updates from admin
   const fullMenu = MENU.map((m) => {
     const updated = dynamicMenu.find((d) => d.id === m.id);
     return updated ? updated : m;
@@ -55,7 +58,7 @@ export default function Menu() {
         i.category.toLowerCase().includes(search.toLowerCase()))
   );
 
-  // Highlights: only available and highlighted items
+  // Get available highlighted items for today
   const highlightsAvailable = fullMenu.filter(
     (i) => i.highlight && !i.unavailable
   );
@@ -64,9 +67,10 @@ export default function Menu() {
     <div className="container">
       <h2>🍴 Our Menu</h2>
 
+      {/* Display today's highlights if available */}
       {highlightsAvailable.length > 0 && (
         <section style={{ marginBottom: "2rem" }}>
-          <h3>🔥 Today’s Highlights</h3>
+          <h3>🔥 Today's Highlights</h3>
           <div className="grid" style={{ gap: "1rem", marginTop: "0.8rem" }}>
             {highlightsAvailable.map((item) => (
               <MenuCard
@@ -83,6 +87,7 @@ export default function Menu() {
         </section>
       )}
 
+      {/* Search and category filter controls */}
       <div className="row" style={{ marginBottom: "1rem", gap: "0.5rem" }}>
         <input
           placeholder="Search items…"
@@ -99,6 +104,7 @@ export default function Menu() {
         </select>
       </div>
 
+      {/* Menu items grid */}
       <div className="grid" style={{ gap: "1rem" }}>
         {filtered.map((item) => (
           <MenuCard
@@ -116,7 +122,7 @@ export default function Menu() {
   );
 }
 
-// ================== MENU CARD ==================
+// ================== MENU CARD COMPONENT ==================
 function MenuCard({ item, cartItem, add, updateQty, remove, navigate }) {
   const isUnavailable = !!item.unavailable;
 
@@ -130,6 +136,7 @@ function MenuCard({ item, cartItem, add, updateQty, remove, navigate }) {
         filter: isUnavailable ? "grayscale(70%)" : "none",
       }}
     >
+      {/* Unavailable indicator badge */}
       {isUnavailable && (
         <span
           style={{
@@ -151,9 +158,11 @@ function MenuCard({ item, cartItem, add, updateQty, remove, navigate }) {
       <div className="muted">
         {item.category} • {item.veg ? "Veg" : "Non-veg"}
       </div>
+      {/* Spicy level indicator */}
       {item.spicy > 0 && (
         <div style={{ color: "tomato" }}>🌶 Spicy Level: {item.spicy}</div>
       )}
+      {/* Item image */}
       {item.img && (
         <img
           src={item.img}
@@ -172,8 +181,10 @@ function MenuCard({ item, cartItem, add, updateQty, remove, navigate }) {
         {formatQAR(item.price)}
       </div>
 
+      {/* Cart controls - different states based on item availability and cart status */}
       <div className="row" style={{ marginTop: "0.6rem", gap: "0.3rem" }}>
         {!cartItem ? (
+          // Add to cart button for items not in cart
           <button
             className="btn"
             onClick={() => add({ ...item, qty: 1 })}
@@ -182,6 +193,7 @@ function MenuCard({ item, cartItem, add, updateQty, remove, navigate }) {
             {isUnavailable ? "Unavailable" : "➕ Add to Cart"}
           </button>
         ) : (
+          // Quantity controls for items already in cart
           <>
             <div
               className="row"
@@ -209,6 +221,7 @@ function MenuCard({ item, cartItem, add, updateQty, remove, navigate }) {
                 +
               </button>
             </div>
+            {/* Quick navigation to cart */}
             <button
               className="btn btn-primary"
               onClick={() => navigate("/cart")}

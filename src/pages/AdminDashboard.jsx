@@ -3,57 +3,67 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { MENU } from "../data/menu.js";
 import { useNavigate } from "react-router-dom";
 
+// Local storage keys for persistent data
 const STORAGE_KEY = "nr_admin_menu";
 const USERS_KEY = "nr_registered_users";
+const FEEDBACK_KEY = "nr_feedbacks";
 
-// ========== MENU HOOK ==========
+// ================= MENU HOOK =================
 function useAdminMenu() {
   const [items, setItems] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved) : MENU;
   });
 
+  // Helper function to update state and persist to localStorage
   const persist = (next) => {
     setItems(next);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   };
 
+  // Update existing item or add new item to menu
   const upsert = (item) => {
     const idx = items.findIndex((x) => x.id === item.id);
     if (idx >= 0) persist(items.map((x, i) => (i === idx ? item : x)));
     else persist([...items, item]);
   };
 
+  // Remove item from menu by ID
   const del = (id) => persist(items.filter((x) => x.id !== id));
 
   return { items, upsert, del };
 }
 
-// ========== USERS HOOK ==========
+// ================= USERS HOOK =================
 function useAdminUsers(defaultUsers) {
   const [users, setUsers] = useState(() => {
     const saved = localStorage.getItem(USERS_KEY);
     return saved ? JSON.parse(saved) : defaultUsers;
   });
 
+  // Helper function to update state and persist to localStorage
   const persist = (next) => {
     setUsers(next);
     localStorage.setItem(USERS_KEY, JSON.stringify(next));
   };
 
+  // Update existing user or add new user
   const upsert = (user) => {
     const idx = users.findIndex((x) => x.email === user.email);
     if (idx >= 0) persist(users.map((x, i) => (i === idx ? user : x)));
     else persist([...users, user]);
   };
 
+  // Remove user by email
   const del = (email) => persist(users.filter((x) => x.email !== email));
 
   return { users, upsert, del };
 }
 
-const generateId = () => "item-" + Date.now();
+// Generate unique ID for new menu items
+const generateId = () => "id-" + Date.now();
 
+// ================= ADMIN DASHBOARD =================
 export default function AdminDashboard() {
   const { user } = useAuth();
   const { items, upsert, del } = useAdminMenu();
@@ -71,6 +81,7 @@ export default function AdminDashboard() {
   const [resetMsg, setResetMsg] = useState(null);
   const navigate = useNavigate();
 
+  // Filter menu items based on search query
   const filtered = useMemo(
     () =>
       items.filter(
@@ -82,8 +93,10 @@ export default function AdminDashboard() {
     [items, search]
   );
 
+  // Restrict access to admin users only
   if (user?.role !== "admin") return null;
 
+  // Save menu item with proper data formatting
   const handleSave = (updatedItem) => {
     const itemToSave = {
       ...updatedItem,
@@ -99,6 +112,7 @@ export default function AdminDashboard() {
     setTimeout(() => setSaveMsg(null), 2500);
   };
 
+  // Save user profile changes
   const handleSaveUser = (updatedUser) => {
     upsertUser(updatedUser);
     setEditingUser(null);
@@ -106,10 +120,11 @@ export default function AdminDashboard() {
     setTimeout(() => setSaveMsg(null), 2500);
   };
 
+  // Reset all application data with confirmation
   const resetAppData = () => {
     if (
       window.confirm(
-        "Are you sure you want to reset all app data? This will clear menu, orders, reviews, highlights, and registered users."
+        "Are you sure you want to reset all app data? This will clear menu, orders, reviews, highlights, users, feedbacks."
       )
     ) {
       const keys = [
@@ -118,6 +133,7 @@ export default function AdminDashboard() {
         "nr_reviews",
         "nr_highlights",
         "nr_registered_users",
+        "nr_feedbacks",
       ];
       keys.forEach((k) => localStorage.removeItem(k));
       setResetMsg("⚠️ All app data has been reset!");
@@ -128,11 +144,9 @@ export default function AdminDashboard() {
 
   return (
     <div className="container" style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-      {saveMsg && (
-        <div className="popup success">{saveMsg}</div>
-      )}
+      {saveMsg && <div className="popup success">{saveMsg}</div>}
 
-      {/* Orders & Money Management */}
+      {/* Orders & Money Management Section */}
       <section>
         <h2>📦 View Orders & 💰 Money Management</h2>
         <div className="row" style={{ gap: "1rem", marginBottom: "1rem" }}>
@@ -145,7 +159,7 @@ export default function AdminDashboard() {
         </div>
       </section>
 
-      {/* Manage Customers */}
+      {/* User Management Section */}
       <section>
         <h2>👥 Manage Profiles</h2>
         <div className="grid" style={{ gap: "1rem" }}>
@@ -172,13 +186,14 @@ export default function AdminDashboard() {
         </div>
       </section>
 
-      {/* Manage Menu */}
+      {/* Menu Management Section */}
       <section>
         <h2>🍴 Manage Menu</h2>
         <div className="row" style={{ marginBottom: "1rem" }}>
           <input placeholder="Search items…" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
 
+        {/* Add New Item Form */}
         {editingId === "new" ? (
           <InlineEditForm
             item={{
@@ -204,6 +219,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* Menu Items Grid */}
         <div className="grid" style={{ gap: "1rem" }}>
           {filtered.map((item) => (
             <ItemCard
@@ -218,12 +234,18 @@ export default function AdminDashboard() {
         </div>
       </section>
 
-      {/* Settings */}
+      {/* Feedback Section */}
+      <section>
+        <h2>💬 User Feedbacks</h2>
+        <FeedbackList />
+      </section>
+
+      {/* Settings Section */}
       <section>
         <h2>⚠️ Settings</h2>
         <div className="card" style={{ marginTop: "0.5rem", padding: "1rem" }}>
           <p style={{ marginBottom: "0.8rem" }}>
-            Reset all app data (menu, orders, reviews, highlights, users).
+            Reset all app data (menu, orders, reviews, highlights, users, feedbacks).
           </p>
           <button className="btn outline" onClick={resetAppData}>
             Reset App Data
@@ -232,6 +254,7 @@ export default function AdminDashboard() {
         </div>
       </section>
 
+      {/* Popup notification styles */}
       <style>{`
         .popup {
           position: fixed;
@@ -256,7 +279,7 @@ export default function AdminDashboard() {
   );
 }
 
-// ========== COMPONENTS ==========
+// ================== USER EDIT FORM ==================
 function UserEditForm({ user, onCancel, onSave }) {
   const [form, setForm] = useState(user);
 
@@ -283,11 +306,13 @@ function UserEditForm({ user, onCancel, onSave }) {
   );
 }
 
+// ================== ITEM CARD ==================
 function ItemCard({ item, onEdit, onDelete, isEditing, onSave }) {
   const isUnavailable = item.unavailable;
 
   return (
     <div className="card" style={{ padding: "1rem", position: "relative", opacity: isUnavailable ? 0.5 : 1, filter: isUnavailable ? "grayscale(70%)" : "none" }}>
+      {/* Unavailable indicator badge */}
       {isUnavailable && (
         <span style={{ position: "absolute", top: "0.5rem", right: "0.5rem", background: "red", color: "white", fontSize: "0.7rem", padding: "0.2rem 0.5rem", borderRadius: "4px" }}>
           Unavailable
@@ -298,18 +323,20 @@ function ItemCard({ item, onEdit, onDelete, isEditing, onSave }) {
       <div className="muted">{item.category} • {item.veg ? "Veg" : "Non-veg"}</div>
       {item.spicy > 0 && <div style={{ color: "tomato" }}>Spicy Level: {item.spicy}</div>}
       {item.img && <img src={item.img} alt={item.name} style={{ width: "200px", height: "150px", objectFit: "cover", borderRadius: "0.5rem", marginTop: "0.5rem" }} />}
-      {item.highlight && !isUnavailable && <div style={{ marginTop: "0.5rem" }}><span className="tag primary">Today’s Highlight</span></div>}
+      {item.highlight && !isUnavailable && <div style={{ marginTop: "0.5rem" }}><span className="tag primary">Today's Highlight</span></div>}
 
       <div className="row" style={{ marginTop: ".6rem" }}>
         <button className="btn outline" onClick={() => onEdit(item.id)}>Edit</button>
         <button className="btn outline" onClick={() => onDelete(item.id)}>Delete</button>
       </div>
 
+      {/* Show edit form when this item is being edited */}
       {isEditing && <InlineEditForm item={item} onCancel={() => onEdit(null)} onSave={onSave} />}
     </div>
   );
 }
 
+// ================== INLINE EDIT FORM ==================
 function InlineEditForm({ item, onCancel, onSave }) {
   const [form, setForm] = useState(item);
 
@@ -353,7 +380,7 @@ function InlineEditForm({ item, onCancel, onSave }) {
         <label className="toggle-label">
           <input type="checkbox" checked={form.highlight && !form.unavailable} disabled={form.unavailable} onChange={(e) => setForm({ ...form, highlight: e.target.checked })} />
           <span className="slider"></span>
-          Today’s Highlight
+          Today's Highlight
         </label>
         <label className="toggle-label">
           <input type="checkbox" checked={form.unavailable || false} onChange={(e) => setForm({ ...form, unavailable: e.target.checked, highlight: e.target.checked ? false : form.highlight })} />
@@ -367,5 +394,64 @@ function InlineEditForm({ item, onCancel, onSave }) {
         <button className="btn outline" type="button" onClick={onCancel}>Cancel</button>
       </div>
     </form>
+  );
+}
+
+// ================== FEEDBACK LIST ==================
+function FeedbackList() {
+  const [feedbacks, setFeedbacks] = React.useState(() => {
+    return JSON.parse(localStorage.getItem(FEEDBACK_KEY) || "[]");
+  });
+
+  // Delete feedback with confirmation
+  const deleteFeedback = (id) => {
+    if (!window.confirm("Are you sure you want to delete this feedback?")) return;
+    const updated = feedbacks.filter(f => f.id !== id);
+    setFeedbacks(updated);
+    localStorage.setItem(FEEDBACK_KEY, JSON.stringify(updated));
+  };
+
+  if (feedbacks.length === 0) {
+    return <p className="muted">No feedbacks submitted yet.</p>;
+  }
+
+  return (
+    <div className="grid md:grid-cols-2 gap-4 mt-2">
+      {feedbacks
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .map((f) => (
+        <div key={f.id} className="card p-4 shadow-lg rounded-xl bg-white hover:shadow-2xl transition duration-300">
+          <div className="flex justify-between items-start mb-2">
+            <div>
+              <strong className="text-lg">{f.name}</strong>
+              <div className="muted text-sm">{f.email}</div>
+              {f.contactNumber && <div className="muted text-sm">📞 {f.contactNumber}</div>}
+              <div className="muted text-sm">{new Date(f.date).toLocaleString()}</div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                className="btn outline text-red-500 text-sm"
+                onClick={() => deleteFeedback(f.id)}
+              >
+                Delete
+              </button>
+              <a
+                className="btn outline text-blue-500 text-sm"
+                href={`mailto:${f.email}?subject=Re: ${encodeURIComponent(f.subject)}&body=${encodeURIComponent(`Hello ${f.name},\n\n`)}`}
+              >
+                Reply
+              </a>
+            </div>
+          </div>
+          <div className="mt-2">
+            <strong>Subject:</strong> {f.subject}
+          </div>
+          <div className="mt-1">
+            <strong>Message:</strong>
+            <p className="mt-1">{f.message}</p>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

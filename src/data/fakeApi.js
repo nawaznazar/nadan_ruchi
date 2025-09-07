@@ -49,6 +49,54 @@ export const qatarData = {
           buildings: [{ building_number: "8" }, { building_number: "19" }]
         }
       ]
+    },
+    {
+      zone_number: "72",
+      zone_name_en: "West Bay",
+      streets: [
+        {
+          street_number: "401",
+          street_name_en: "Diplomatic St",
+          buildings: [{ building_number: "101" }, { building_number: "145" }]
+        },
+        {
+          street_number: "402",
+          street_name_en: "Conference Centre St",
+          buildings: [{ building_number: "77" }, { building_number: "120" }]
+        }
+      ]
+    },
+    {
+      zone_number: "73",
+      zone_name_en: "Lusail",
+      streets: [
+        {
+          street_number: "501",
+          street_name_en: "Lusail Marina St",
+          buildings: [{ building_number: "22" }, { building_number: "66" }]
+        },
+        {
+          street_number: "502",
+          street_name_en: "Fox Hills Blvd",
+          buildings: [{ building_number: "9" }, { building_number: "45" }]
+        }
+      ]
+    },
+    {
+      zone_number: "74",
+      zone_name_en: "Al Wakrah",
+      streets: [
+        {
+          street_number: "601",
+          street_name_en: "Al Wakrah Main St",
+          buildings: [{ building_number: "12" }, { building_number: "39" }]
+        },
+        {
+          street_number: "602",
+          street_name_en: "Souq Wakrah Rd",
+          buildings: [{ building_number: "7" }, { building_number: "27" }]
+        }
+      ]
     }
   ]
 };

@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     <footer>
       <div className="container footer-content">
-        {/* Left Section: Brand */}
+        {/* Restaurant branding and contact information */}
         <div>
           <strong
             style={{
@@ -33,8 +33,9 @@ export default function Footer() {
           </a>
         </div>
 
-        {/* Center Section: Social Icons */}
+        {/* Social media links with interactive hover effects */}
         <div className="footer-links" style={{ display: "flex", gap: "1rem" }}>
+          {/* Facebook link */}
           <a
             href="https://www.facebook.com"
             target="_blank"
@@ -57,6 +58,7 @@ export default function Footer() {
             <FaFacebookF />
           </a>
 
+          {/* Instagram link */}
           <a
             href="https://www.instagram.com"
             target="_blank"
@@ -79,6 +81,7 @@ export default function Footer() {
             <FaInstagram />
           </a>
 
+          {/* WhatsApp link for direct messaging */}
           <a
             href="https://wa.me/97455555555"
             target="_blank"
@@ -102,7 +105,7 @@ export default function Footer() {
           </a>
         </div>
 
-        {/* Right Section: Copyright */}
+        {/* Copyright notice with dynamic year */}
         <div className="muted" style={{ textAlign: "right" }}>
           © {new Date().getFullYear()} Nadan Ruchi.
         </div>

@@ -3,7 +3,7 @@ import React from "react";
 export default function About() {
   return (
     <div className="container">
-      {/* Hero Section */}
+      {/* Hero Section with brand introduction */}
       <div className="hero">
         <div className="hero-content">
           <h1>About <span style={{ background: 'var(--gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Nadan Ruchi</span></h1>
@@ -13,17 +13,17 @@ export default function About() {
           </p>
         </div>
         <div className="hero-image">
-          <img src="https://clubmahindra.gumlet.io/blog/media/section_images/lesserknow-a2e0f1c06adedef.webp?w=376&dpr=2.6" alt="Nadan Ruchi food" />
+          <img src="https://clubmahindra.gumlet.io/blog/media/section_images/lesserknow-a2e0f1c06adedef.webp?w=376&dpr=2.6" alt="Traditional Kerala cuisine from Nadan Ruchi" />
         </div>
       </div>
 
-      {/* Highlights / Promise Section */}
+      {/* Key features and value propositions */}
       <div className="grid">
         <div className="card hover-card">
           <div className="highlight-img-wrapper">
             <img 
               src="https://static.india.com/wp-content/uploads/2024/10/feature-2024-10-21T093052.339.jpg?impolicy=Medium_Widthonly&w=350&h=263" 
-              alt="Authentic Kerala Flavors" 
+              alt="Authentic Kerala cuisine with traditional flavors" 
               className="highlight-img" 
             />
           </div>
@@ -35,7 +35,7 @@ export default function About() {
           <div className="highlight-img-wrapper">
             <img 
               src="https://img.freepik.com/premium-vector/financial-management-concept-investment-flat-design-payment-finance-with-money_33771-1061.jpg" 
-              alt="Transparent Pricing" 
+              alt="Clear and honest pricing structure" 
               className="highlight-img" 
             />
           </div>
@@ -47,7 +47,7 @@ export default function About() {
           <div className="highlight-img-wrapper">
             <img 
               src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCqRg8eZEGBDoz58j93HYQQ0_KTV0t3nskLQ&s" 
-              alt="Modern Experience" 
+              alt="Modern website with user-friendly features" 
               className="highlight-img" 
             />
           </div>
@@ -56,7 +56,7 @@ export default function About() {
         </div>
       </div>
 
-      {/* Call to Action */}
+      {/* Call to action encouraging menu exploration */}
       <div className="center" style={{ marginTop: '3rem' }}>
         <div className="highlight-img-wrapper" style={{ width: '60px', height: '60px', margin: '0 auto', borderRadius: '50%', background: 'var(--gradient)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           ❤️

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { formatQAR } from "../utils/currency.js";
 
+// Order status progression flow
 const statusFlow = ["pending", "preparing", "ready", "on the way", "done"];
 
+// Styling configuration for different order statuses
 const statusStyles = {
   pending: { color: "#f97316", label: "Pending", animation: "" },
   preparing: { color: "#3b82f6", label: "Preparing", animation: "pulse" },
@@ -21,10 +23,11 @@ export default function Orders() {
   const [rating, setRating] = useState(5);
   const [text, setText] = useState("");
 
+  // Filter and sort options
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortOption, setSortOption] = useState("newest");
 
-  // Load user orders
+  // Load user orders from localStorage
   useEffect(() => {
     if (user) {
       const data = JSON.parse(localStorage.getItem("nr_orders") || "[]");
@@ -32,15 +35,17 @@ export default function Orders() {
     }
   }, [user]);
 
-  // Auto-update order statuses every 10 seconds
+  // Simulate order status progression with interval updates
   useEffect(() => {
     const interval = setInterval(() => {
       const all = JSON.parse(localStorage.getItem("nr_orders") || "[]");
       let updated = false;
 
       const newAll = all.map((o) => {
+        // Don't update completed or cancelled orders
         if (["done", "cancelled", "rejected"].includes(o.status)) return o;
         const currentIndex = statusFlow.indexOf(o.status);
+        // Progress order to next status if available
         if (currentIndex !== -1 && currentIndex < statusFlow.length - 1) {
           updated = true;
           return { ...o, status: statusFlow[currentIndex + 1] };
@@ -57,6 +62,7 @@ export default function Orders() {
     return () => clearInterval(interval);
   }, [user]);
 
+  // Require user authentication
   if (!user)
     return (
       <div className="container">
@@ -64,6 +70,7 @@ export default function Orders() {
       </div>
     );
 
+  // Cancel an order with confirmation
   const cancelOrder = (id) => {
     if (!window.confirm("Cancel this order?")) return;
     const all = JSON.parse(localStorage.getItem("nr_orders") || "[]");
@@ -74,6 +81,7 @@ export default function Orders() {
     setOrders(updated.filter((o) => o.email === user.email));
   };
 
+  // Generate printable bill for completed orders
   const generateBill = (order) => {
     const billWindow = window.open("", "_blank", "width=600,height=800");
     billWindow.document.write(`
@@ -148,6 +156,7 @@ export default function Orders() {
     billWindow.print();
   };
 
+  // Submit review for completed order
   const submitReview = (order) => {
     if (!text.trim()) return alert("Please write something.");
     const all = JSON.parse(localStorage.getItem("nr_reviews") || "[]");
@@ -167,7 +176,7 @@ export default function Orders() {
     alert("✅ Review submitted!");
   };
 
-  // Filter & sort orders
+  // Filter and sort orders based on user selection
   const filteredOrders = orders
     .filter((o) => (filterStatus === "all" ? true : o.status === filterStatus))
     .sort((a, b) => {
@@ -182,7 +191,7 @@ export default function Orders() {
     <div className="container">
       <h2>My Orders</h2>
 
-      {/* Filter & Sort Controls */}
+      {/* Filter and sort controls */}
       <div style={{ marginBottom: "1rem", display: "flex", gap: "1rem" }}>
         <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
           <option value="all">All</option>
@@ -201,6 +210,7 @@ export default function Orders() {
         </select>
       </div>
 
+      {/* Orders list */}
       {filteredOrders.length === 0 ? (
         <p className="muted">No orders found.</p>
       ) : (
@@ -242,14 +252,17 @@ export default function Orders() {
                     {st.label}
                   </span>
                 </p>
+                {/* Show admin comments for rejected orders */}
                 {o.adminComment && <p><strong>Admin Comment:</strong> {o.adminComment}</p>}
 
+                {/* Cancel button for pending orders */}
                 {o.status === "pending" && (
                   <button className="btn outline" onClick={() => cancelOrder(o.id)}>
                     Cancel Order
                   </button>
                 )}
 
+                {/* Actions for completed orders */}
                 {o.status === "done" && (
                   <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem" }}>
                     <button className="btn" onClick={() => generateBill(o)}>
@@ -266,7 +279,7 @@ export default function Orders() {
         </div>
       )}
 
-      {/* Review Modal */}
+      {/* Review modal for completed orders */}
       {reviewModal && (
         <div
           className="modal"
