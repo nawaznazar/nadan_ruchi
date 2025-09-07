@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { formatQAR } from "../utils/currency.js";
+import { PieChart, Pie, Cell, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 
 export default function AdminMoney() {
   const { user } = useAuth();
@@ -26,15 +27,16 @@ export default function AdminMoney() {
     return <div className="container"><p>⛔ Access denied. Admins only.</p></div>;
   }
 
+  // ---------------- QUICK FILTERS ----------------
   const applyQuickFilter = (option) => {
     const today = new Date();
     let start, end;
 
     if (option === "today") start = end = new Date(today);
     else if (option === "yesterday") {
-      const yesterday = new Date();
-      yesterday.setDate(today.getDate() - 1);
-      start = end = yesterday;
+      const y = new Date(today);
+      y.setDate(today.getDate() - 1);
+      start = end = y;
     }
     else if (option === "thisWeek") {
       const day = today.getDay();
@@ -63,6 +65,7 @@ export default function AdminMoney() {
     setActiveQuickFilter(option);
   };
 
+  // ---------------- FILTERED ORDERS ----------------
   const filteredOrders = useMemo(() => {
     let data = [...orders];
 
@@ -95,8 +98,9 @@ export default function AdminMoney() {
     return data;
   }, [orders, startDate, endDate, filterStatus, filterPayment, search, sortField, sortOrder]);
 
+  // ---------------- SUMMARY ----------------
   const summary = useMemo(() => {
-    const stats = { totalRevenue: 0, totalOrders: 0, totalItems: 0, items: {}, cash: 0, card: 0 };
+    const stats = { totalRevenue: 0, totalOrders: 0, totalItems: 0, items: {}, cash: 0, card: 0, byStatus: {} };
     filteredOrders.forEach(o => {
       if (o.status === "done") {
         stats.totalRevenue += o.total;
@@ -110,6 +114,7 @@ export default function AdminMoney() {
           stats.items[i.name].revenue += i.qty * i.price;
         });
       }
+      stats.byStatus[o.status] = (stats.byStatus[o.status] || 0) + 1;
     });
     return stats;
   }, [filteredOrders]);
@@ -128,6 +133,19 @@ export default function AdminMoney() {
 
   const toggleCollapse = (date) => setCollapsedDates(prev => ({ ...prev, [date]: !prev[date] }));
 
+  // ---------------- CHART DATA ----------------
+  const paymentData = [
+    { name: "Cash", value: summary.cash },
+    { name: "Card", value: summary.card }
+  ];
+  const COLORS = ["#32cd32", "#1e90ff"];
+
+  const revenueTrend = Object.entries(ordersByDate).map(([date, os]) => ({
+    date,
+    revenue: os.filter(o => o.status === "done").reduce((sum, o) => sum + o.total, 0)
+  }));
+
+  // ---------------- RENDER ----------------
   return (
     <div className="container">
       <h2>💰 Advanced Money Management & Sales Overview</h2>
@@ -145,9 +163,9 @@ export default function AdminMoney() {
         ))}
       </div>
 
-      {/* Filters, Sorting */}
+      {/* Filters */}
       <div className="row" style={{ gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
-        <input type="text" placeholder="Search by customer/order/item..." value={search} onChange={e => setSearch(e.target.value)} style={{ flex: "1", padding: "0.5rem" }} />
+        <input type="text" placeholder="🔍 Search by customer/order/item..." value={search} onChange={e => setSearch(e.target.value)} style={{ flex: "1", padding: "0.5rem" }} />
         <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
         <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
         <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
@@ -175,36 +193,42 @@ export default function AdminMoney() {
         </select>
       </div>
 
-      {/* Summary Cards */}
+      {/* Summary */}
       <div className="grid" style={{ gap: "1rem", marginBottom: "1rem" }}>
-        <div className="card summary-card revenue">
-          <h3>Total Revenue</h3>
-          <p>{formatQAR(summary.totalRevenue)}</p>
+        <div className="card summary-card revenue"><h3>Total Revenue</h3><p>{formatQAR(summary.totalRevenue)}</p></div>
+        <div className="card summary-card orders"><h3>Total Orders</h3><p>{summary.totalOrders}</p></div>
+        <div className="card summary-card items"><h3>Total Items Sold</h3><p>{summary.totalItems}</p></div>
+        <div className="card summary-card cash"><h3>Cash</h3><p>{formatQAR(summary.cash)}</p></div>
+        <div className="card summary-card card"><h3>Card</h3><p>{formatQAR(summary.card)}</p></div>
+      </div>
+
+      {/* Charts */}
+      <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+        <div className="card"><h4>Payment Breakdown</h4>
+          <PieChart width={300} height={250}>
+            <Pie data={paymentData} cx="50%" cy="50%" outerRadius={80} dataKey="value" label>
+              {paymentData.map((entry, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+            </Pie>
+            <Tooltip /><Legend />
+          </PieChart>
         </div>
-        <div className="card summary-card orders">
-          <h3>Total Orders</h3>
-          <p>{summary.totalOrders}</p>
-        </div>
-        <div className="card summary-card items">
-          <h3>Total Items Sold</h3>
-          <p>{summary.totalItems}</p>
-        </div>
-        <div className="card summary-card cash">
-          <h3>Cash</h3>
-          <p>{formatQAR(summary.cash)}</p>
-        </div>
-        <div className="card summary-card card">
-          <h3>Card</h3>
-          <p>{formatQAR(summary.card)}</p>
+        <div className="card"><h4>Revenue Trend</h4>
+          <LineChart width={400} height={250} data={revenueTrend}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" /><YAxis /><Tooltip />
+            <Line type="monotone" dataKey="revenue" stroke="#ff4d4d" />
+          </LineChart>
         </div>
       </div>
 
       {/* Top Selling Items */}
       <div className="card" style={{ marginTop: "1rem" }}>
-        <h4>Top Selling Items:</h4>
+        <h4>🏆 Top Selling Items</h4>
         <ul>
-          {sortedItems.map(([name, data]) => (
-            <li key={name}>{name}: {data.qty} × ({formatQAR(data.revenue)})</li>
+          {sortedItems.slice(0, 10).map(([name, data], i) => (
+            <li key={name}>
+              <strong>{i+1}. {name}</strong> — {data.qty} pcs ({formatQAR(data.revenue)})
+            </li>
           ))}
         </ul>
       </div>

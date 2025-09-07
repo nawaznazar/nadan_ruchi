@@ -9,33 +9,37 @@ export default function Header() {
   const { user, logout } = useAuth();
   const qty = items.reduce((s, i) => s + i.qty, 0);
 
-  // Links for customer (moved My Orders out of here)
+  // Function to add nav-link class with active
+  const navClass = ({ isActive }) =>
+    isActive ? "nav-link active" : "nav-link";
+
+  // Customer links
   const customerLinks = (
     <>
-      <NavLink to="/" end>Home</NavLink>
-      <NavLink to="/menu">Menu</NavLink>
-      <NavLink to="/about">About</NavLink>
-      <NavLink to="/contact">Contact</NavLink>
-      <NavLink to="/profile">Profile</NavLink>
+      <NavLink to="/" end className={navClass}>Home</NavLink>
+      <NavLink to="/menu" className={navClass}>Menu</NavLink>
+      <NavLink to="/about" className={navClass}>About</NavLink>
+      <NavLink to="/contact" className={navClass}>Contact</NavLink>
+      <NavLink to="/profile" className={navClass}>Profile</NavLink>
     </>
   );
 
-  // Links for admin
+  // Admin links
   const adminLinks = (
     <>
-      <NavLink to="/admin/orders">📦 Orders</NavLink>
-      <NavLink to="/admin">Admin Dashboard</NavLink>
-      <NavLink to="/admin/money">💰 Money Management</NavLink> {/* NEW LINK */}
+      <NavLink to="/admin/orders" className={navClass}>📦 Orders</NavLink>
+      <NavLink to="/admin/money" className={navClass}>💰 Money</NavLink>
+      <NavLink to="/admin" className={navClass}>⚙️ Dashboard</NavLink>
     </>
   );
 
-  // Links for guests
+  // Guest links
   const guestLinks = (
     <>
-      <NavLink to="/" end>Home</NavLink>
-      <NavLink to="/menu">Menu</NavLink>
-      <NavLink to="/about">About</NavLink>
-      <NavLink to="/contact">Contact</NavLink>
+      <NavLink to="/" end className={navClass}>Home</NavLink>
+      <NavLink to="/menu" className={navClass}>Menu</NavLink>
+      <NavLink to="/about" className={navClass}>About</NavLink>
+      <NavLink to="/contact" className={navClass}>Contact</NavLink>
     </>
   );
 
@@ -62,10 +66,10 @@ export default function Header() {
             {/* Cart + My Orders for customers */}
             {user?.role === "customer" && (
               <>
-                <NavLink to="/cart" className="btn outline">
+                <NavLink to="/cart" className="btn outline btn-float">
                   🛒 Cart ({qty})
                 </NavLink>
-                <NavLink to="/orders" className="btn outline">
+                <NavLink to="/orders" className="btn outline btn-float">
                   📦 My Orders
                 </NavLink>
               </>
@@ -73,13 +77,13 @@ export default function Header() {
 
             {/* Auth Buttons */}
             {user ? (
-              <button className="btn" onClick={logout}>
+              <button className="btn btn-float" onClick={logout}>
                 Logout
               </button>
             ) : (
               <>
-                <NavLink to="/login" className="btn">Login</NavLink>
-                <NavLink to="/register" className="btn outline">Register</NavLink>
+                <NavLink to="/login" className="btn btn-float">Login</NavLink>
+                <NavLink to="/register" className="btn outline btn-float">Register</NavLink>
               </>
             )}
           </div>

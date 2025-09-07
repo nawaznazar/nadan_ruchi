@@ -4,7 +4,9 @@ import { MENU } from "../data/menu.js";
 import { useNavigate } from "react-router-dom";
 
 const STORAGE_KEY = "nr_admin_menu";
+const USERS_KEY = "nr_registered_users";
 
+// ========== MENU HOOK ==========
 function useAdminMenu() {
   const [items, setItems] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -27,13 +29,44 @@ function useAdminMenu() {
   return { items, upsert, del };
 }
 
+// ========== USERS HOOK ==========
+function useAdminUsers(defaultUsers) {
+  const [users, setUsers] = useState(() => {
+    const saved = localStorage.getItem(USERS_KEY);
+    return saved ? JSON.parse(saved) : defaultUsers;
+  });
+
+  const persist = (next) => {
+    setUsers(next);
+    localStorage.setItem(USERS_KEY, JSON.stringify(next));
+  };
+
+  const upsert = (user) => {
+    const idx = users.findIndex((x) => x.email === user.email);
+    if (idx >= 0) persist(users.map((x, i) => (i === idx ? user : x)));
+    else persist([...users, user]);
+  };
+
+  const del = (email) => persist(users.filter((x) => x.email !== email));
+
+  return { users, upsert, del };
+}
+
 const generateId = () => "item-" + Date.now();
 
 export default function AdminDashboard() {
   const { user } = useAuth();
   const { items, upsert, del } = useAdminMenu();
+  const { users, upsert: upsertUser, del: delUser } = useAdminUsers([
+    { email: "admin@nadanruchi.qa", role: "admin", name: "Admin" },
+    { email: "arun@yopmail.com", role: "customer", name: "Arun" },
+    { email: "shobin@yopmail.com", role: "customer", name: "Shobin" },
+    { email: "nazriya@yopmail.com", role: "customer", name: "Nazriya" },
+  ]);
+
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [editingUser, setEditingUser] = useState(null);
   const [saveMsg, setSaveMsg] = useState(null);
   const [resetMsg, setResetMsg] = useState(null);
   const navigate = useNavigate();
@@ -51,8 +84,6 @@ export default function AdminDashboard() {
 
   if (user?.role !== "admin") return null;
 
-  const handleEditClick = (itemId) => setEditingId(itemId);
-
   const handleSave = (updatedItem) => {
     const itemToSave = {
       ...updatedItem,
@@ -65,6 +96,13 @@ export default function AdminDashboard() {
     window.dispatchEvent(new Event("menu-updated"));
     setEditingId(null);
     setSaveMsg(`✅ ${itemToSave.name} saved!`);
+    setTimeout(() => setSaveMsg(null), 2500);
+  };
+
+  const handleSaveUser = (updatedUser) => {
+    upsertUser(updatedUser);
+    setEditingUser(null);
+    setSaveMsg(`✅ ${updatedUser.name}'s profile saved!`);
     setTimeout(() => setSaveMsg(null), 2500);
   };
 
@@ -91,26 +129,10 @@ export default function AdminDashboard() {
   return (
     <div className="container" style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
       {saveMsg && (
-        <div
-          style={{
-            position: "fixed",
-            top: "1rem",
-            right: "1rem",
-            backgroundColor: "#4BB543",
-            color: "white",
-            padding: "0.6rem 1rem",
-            borderRadius: "6px",
-            fontSize: "0.9rem",
-            boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-            zIndex: 9999,
-            animation: "fadeinout 2.5s forwards",
-          }}
-        >
-          {saveMsg}
-        </div>
+        <div className="popup success">{saveMsg}</div>
       )}
 
-      {/* Orders & Money Management Links */}
+      {/* Orders & Money Management */}
       <section>
         <h2>📦 View Orders & 💰 Money Management</h2>
         <div className="row" style={{ gap: "1rem", marginBottom: "1rem" }}>
@@ -120,6 +142,33 @@ export default function AdminDashboard() {
           <button className="btn outline" onClick={() => navigate("/admin/money")}>
             💰 Money Management
           </button>
+        </div>
+      </section>
+
+      {/* Manage Customers */}
+      <section>
+        <h2>👥 Manage Profiles</h2>
+        <div className="grid" style={{ gap: "1rem" }}>
+          {users.map((u) => (
+            <div key={u.email} className="card" style={{ padding: "1rem" }}>
+              <strong>{u.name}</strong>
+              <div className="muted">{u.email}</div>
+              <div className="muted">Role: {u.role}</div>
+              <div className="row" style={{ marginTop: "0.5rem" }}>
+                <button className="btn outline" onClick={() => setEditingUser(u.email)}>Edit</button>
+                {u.role !== "admin" && (
+                  <button className="btn outline" onClick={() => delUser(u.email)}>Delete</button>
+                )}
+              </div>
+              {editingUser === u.email && (
+                <UserEditForm
+                  user={u}
+                  onCancel={() => setEditingUser(null)}
+                  onSave={handleSaveUser}
+                />
+              )}
+            </div>
+          ))}
         </div>
       </section>
 
@@ -160,7 +209,7 @@ export default function AdminDashboard() {
             <ItemCard
               key={item.id}
               item={item}
-              onEdit={handleEditClick}
+              onEdit={setEditingId}
               onDelete={del}
               onSave={handleSave}
               isEditing={editingId === item.id}
@@ -179,26 +228,23 @@ export default function AdminDashboard() {
           <button className="btn outline" onClick={resetAppData}>
             Reset App Data
           </button>
-          {resetMsg && (
-            <div
-              style={{
-                marginTop: "0.8rem",
-                backgroundColor: "#e67e22",
-                color: "#fff",
-                padding: "0.5rem 0.9rem",
-                borderRadius: "5px",
-                fontSize: "0.85rem",
-                display: "inline-block",
-                animation: "fadeinout 3.5s forwards",
-              }}
-            >
-              {resetMsg}
-            </div>
-          )}
+          {resetMsg && <div className="popup warning">{resetMsg}</div>}
         </div>
       </section>
 
       <style>{`
+        .popup {
+          position: fixed;
+          top: 1rem;
+          right: 1rem;
+          padding: 0.6rem 1rem;
+          border-radius: 6px;
+          font-size: 0.9rem;
+          z-index: 9999;
+          animation: fadeinout 2.5s forwards;
+        }
+        .popup.success { background: #4BB543; color: white; }
+        .popup.warning { background: #e67e22; color: white; }
         @keyframes fadeinout {
           0% { opacity: 0; transform: translateY(-10px);}
           10% { opacity: 1; transform: translateY(0);}
@@ -207,6 +253,33 @@ export default function AdminDashboard() {
         }
       `}</style>
     </div>
+  );
+}
+
+// ========== COMPONENTS ==========
+function UserEditForm({ user, onCancel, onSave }) {
+  const [form, setForm] = useState(user);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!form.email) return alert("Email is required");
+    if (!form.name) return alert("Name is required");
+    onSave(form);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} style={{ marginTop: "1rem" }}>
+      <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" />
+      <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Email" />
+      <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
+        <option value="customer">Customer</option>
+        <option value="admin">Admin</option>
+      </select>
+      <div className="row" style={{ marginTop: "0.5rem" }}>
+        <button className="btn" type="submit">Save</button>
+        <button className="btn outline" type="button" onClick={onCancel}>Cancel</button>
+      </div>
+    </form>
   );
 }
 
