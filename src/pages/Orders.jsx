@@ -281,61 +281,41 @@ export default function Orders() {
 
       {/* Review modal for completed orders */}
       {reviewModal && (
-        <div
-          className="modal"
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.6)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            className="card"
-            style={{ width: "400px", maxWidth: "90%", padding: "1.5rem" }}
-          >
-            <h3>Leave a Review</h3>
-            <p className="muted">For Order #{reviewModal.id}</p>
+  <div className="modal">
+    <div className="modal-card">
+      <h3>Leave a Review</h3>
+      <p className="muted">For Order #{reviewModal.id}</p>
 
-            <div style={{ margin: "1rem 0" }}>
-              <label>Rating:</label>
-              <select
-                value={rating}
-                onChange={(e) => setRating(Number(e.target.value))}
-              >
-                <option value={5}>⭐⭐⭐⭐⭐</option>
-                <option value={4}>⭐⭐⭐⭐</option>
-                <option value={3}>⭐⭐⭐</option>
-                <option value={2}>⭐⭐</option>
-                <option value={1}>⭐</option>
-              </select>
-            </div>
+      <div style={{ margin: "1rem 0" }}>
+        <label>Rating:</label>
+        <select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
+          <option value={5}>⭐⭐⭐⭐⭐</option>
+          <option value={4}>⭐⭐⭐⭐</option>
+          <option value={3}>⭐⭐⭐</option>
+          <option value={2}>⭐⭐</option>
+          <option value={1}>⭐</option>
+        </select>
+      </div>
 
-            <textarea
-              placeholder="Write your feedback..."
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              rows={4}
-              style={{ width: "100%", marginBottom: "1rem" }}
-            />
+      <textarea
+        placeholder="Write your feedback..."
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={4}
+      />
 
-            <div className="row" style={{ justifyContent: "flex-end", gap: "0.5rem" }}>
-              <button className="btn outline" onClick={() => setReviewModal(null)}>
-                Cancel
-              </button>
-              <button className="btn" onClick={() => submitReview(reviewModal)}>
-                Submit
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="row" style={{ justifyContent: "flex-end", gap: "0.5rem" }}>
+        <button className="btn outline" onClick={() => setReviewModal(null)}>
+          Cancel
+        </button>
+        <button className="btn" onClick={() => submitReview(reviewModal)}>
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
