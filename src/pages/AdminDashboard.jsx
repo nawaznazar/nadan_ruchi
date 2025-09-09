@@ -39,7 +39,15 @@ function useAdminMenu() {
   // Remove item from menu by ID
   const del = (id) => persist(items.filter((x) => x.id !== id));
 
-  return { items, upsert, del };
+  // Update all items in a category
+  const updateCategory = (category, updates) => {
+    const updatedItems = items.map(item => 
+      item.category === category ? { ...item, ...updates } : item
+    );
+    persist(updatedItems);
+  };
+
+  return { items, upsert, del, updateCategory };
 }
 
 // ================= USERS HOOK =================
@@ -105,7 +113,7 @@ const generateId = () => "id-" + Date.now();
 // ================= ADMIN DASHBOARD =================
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const { items, upsert, del } = useAdminMenu();
+  const { items, upsert, del, updateCategory } = useAdminMenu();
   const { users, upsert: upsertUser, del: delUser } = useAdminUsers();
 
   const [search, setSearch] = useState("");
@@ -114,6 +122,11 @@ export default function AdminDashboard() {
   const [saveMsg, setSaveMsg] = useState(null);
   const [resetMsg, setResetMsg] = useState(null);
   const navigate = useNavigate();
+
+  // Get unique categories
+  const categories = useMemo(() => {
+    return [...new Set(items.map(item => item.category))];
+  }, [items]);
 
   // Filter menu items based on search query
   const filtered = useMemo(
@@ -188,6 +201,20 @@ export default function AdminDashboard() {
     }
   };
 
+  // Handle category toggle for availability
+  const handleCategoryAvailabilityToggle = (category, isUnavailable) => {
+    updateCategory(category, { unavailable: isUnavailable });
+    setSaveMsg(`✅ All ${category} items marked as ${isUnavailable ? 'unavailable' : 'available'}!`);
+    setTimeout(() => setSaveMsg(null), 2500);
+  };
+
+  // Handle category toggle for highlights
+  const handleCategoryHighlightToggle = (category, isHighlighted) => {
+    updateCategory(category, { highlight: isHighlighted });
+    setSaveMsg(`✅ All ${category} items ${isHighlighted ? 'highlighted' : 'un-highlighted'}!`);
+    setTimeout(() => setSaveMsg(null), 2500);
+  };
+
   return (
     <div className="container" style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
       {saveMsg && <div className="popup success">{saveMsg}</div>}
@@ -247,13 +274,59 @@ export default function AdminDashboard() {
       {/* Menu Management Section */}
       <section>
         <h2>🍴 Manage Menu</h2>
-        <div className="row" style={{ marginBottom: "1rem" }}>
+        <div className="row" style={{ marginBottom: "1rem", alignItems: "center" }}>
           <input 
             placeholder="Search items…" 
             value={search} 
             onChange={(e) => setSearch(e.target.value)}
             style={{ padding: "0.5rem", borderRadius: "4px", border: "1px solid var(--border)", width: "100%" }}
           />
+        </div>
+
+        {/* Category Toggles */}
+        <div className="card" style={{ marginBottom: "1rem", padding: "1rem" }}>
+          <h3 style={{ marginBottom: "1rem" }}>Category Controls</h3>
+          <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1rem" }}>
+            {categories.map(category => {
+              const categoryItems = items.filter(item => item.category === category);
+              const allUnavailable = categoryItems.length > 0 && categoryItems.every(item => item.unavailable);
+              const allHighlighted = categoryItems.length > 0 && categoryItems.every(item => item.highlight);
+              
+              return (
+                <div key={category} className="card" style={{ padding: "0.8rem" }}>
+                  <h4 style={{ marginBottom: "0.8rem" }}>{category}</h4>
+                  
+                  <div className="row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                    <span>Mark all as unavailable:</span>
+                    <label className="toggle-label">
+                      <span className="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          checked={allUnavailable} 
+                          onChange={(e) => handleCategoryAvailabilityToggle(category, e.target.checked)} 
+                        />
+                        <span className="slider"></span>
+                      </span>
+                    </label>
+                  </div>
+                  
+                  <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+                    <span>Mark all as highlight:</span>
+                    <label className="toggle-label">
+                      <span className="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          checked={allHighlighted} 
+                          onChange={(e) => handleCategoryHighlightToggle(category, e.target.checked)} 
+                        />
+                        <span className="slider"></span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Add New Item Form */}
