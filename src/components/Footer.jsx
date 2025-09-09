@@ -16,11 +16,11 @@ export default function Footer() {
 
   return (
     <footer style={{ 
-      background: "var(--footer-bg, linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%))",
-      color: "var(--footer-text, white)",
+      background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
+      color: "white",
       padding: "3rem 0 1.5rem",
       marginTop: "3rem",
-      borderTop: "1px solid var(--glass-border)"
+      borderTop: "1px solid #444"
     }}>
       <div className="container">
         {/* Main footer content */}
@@ -39,9 +39,9 @@ export default function Footer() {
               fontSize: "1.5rem",
               fontWeight: "bold"
             }}>
-              <FaUtensils style={{ marginRight: "0.5rem", color: "var(--primary)" }} />
+              <FaUtensils style={{ marginRight: "0.5rem", color: "#ff6b35" }} />
               <span style={{
-                background: "var(--gradient)",
+                background: "linear-gradient(135deg, #ff6b35, #f7931e)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}>
@@ -49,7 +49,7 @@ export default function Footer() {
               </span>
             </div>
             <p style={{ 
-              color: "var(--footer-muted)", 
+              color: "#ccc", 
               lineHeight: "1.6",
               marginBottom: "1rem"
             }}>
@@ -59,21 +59,21 @@ export default function Footer() {
             
             {/* Contact info */}
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <FaMapMarkerAlt style={{ color: "var(--primary)" }} />
-                <span style={{ color: "var(--footer-text)" }}>Al Wakrah, Doha, Qatar</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "white" }}>
+                <FaMapMarkerAlt style={{ color: "#ff6b35" }} />
+                <span>Al Wakrah, Doha, Qatar</span>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <FaPhoneAlt style={{ color: "var(--primary)" }} />
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "white" }}>
+                <FaPhoneAlt style={{ color: "#ff6b35" }} />
                 <a
                   href="tel:+97455555555"
                   style={{
-                    color: "var(--footer-text)",
+                    color: "white",
                     textDecoration: "none",
                     transition: "color 0.3s ease",
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = "var(--primary)"}
-                  onMouseLeave={(e) => e.currentTarget.style.color = "var(--footer-text)"}
+                  onMouseEnter={(e) => e.currentTarget.style.color = "#ff6b35"}
+                  onMouseLeave={(e) => e.currentTarget.style.color = "white"}
                 >
                   +974 5555 5555
                 </a>
@@ -85,8 +85,8 @@ export default function Footer() {
           <div>
             <h4 style={{ 
               marginBottom: "1rem", 
-              color: "var(--footer-text)",
-              borderBottom: "2px solid var(--primary)",
+              color: "white",
+              borderBottom: "2px solid #ff6b35",
               paddingBottom: "0.5rem",
               display: "inline-block"
             }}>
@@ -104,17 +104,17 @@ export default function Footer() {
                   <a
                     href={link.path}
                     style={{
-                      color: "var(--footer-muted)",
+                      color: "#ccc",
                       textDecoration: "none",
                       transition: "all 0.3s ease",
                       display: "inline-block"
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.color = "var(--primary)";
+                      e.currentTarget.style.color = "#ff6b35";
                       e.currentTarget.style.transform = "translateX(5px)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.color = "var(--footer-muted)";
+                      e.currentTarget.style.color = "#ccc";
                       e.currentTarget.style.transform = "translateX(0)";
                     }}
                   >
@@ -129,14 +129,14 @@ export default function Footer() {
           <div>
             <h4 style={{ 
               marginBottom: "1rem", 
-              color: "var(--footer-text)",
-              borderBottom: "2px solid var(--primary)",
+              color: "white",
+              borderBottom: "2px solid #ff6b35",
               paddingBottom: "0.5rem",
               display: "inline-block"
             }}>
               Opening Hours
             </h4>
-            <div style={{ color: "var(--footer-muted)" }}>
+            <div style={{ color: "#ccc" }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
                 <span>Monday - Friday</span>
                 <span>10:00 AM - 11:00 PM</span>
@@ -148,7 +148,7 @@ export default function Footer() {
               <div style={{ 
                 display: "flex", 
                 justifyContent: "space-between",
-                color: "var(--primary)",
+                color: "#ff6b35",
                 fontWeight: "bold"
               }}>
                 <span>24/7 Delivery</span>
@@ -161,14 +161,14 @@ export default function Footer() {
           <div>
             <h4 style={{ 
               marginBottom: "1rem", 
-              color: "var(--footer-text)",
-              borderBottom: "2px solid var(--primary)",
+              color: "white",
+              borderBottom: "2px solid #ff6b35",
               paddingBottom: "0.5rem",
               display: "inline-block"
             }}>
               Follow Us
             </h4>
-            <p style={{ color: "var(--footer-muted)", marginBottom: "1rem" }}>
+            <p style={{ color: "#ccc", marginBottom: "1rem" }}>
               Stay connected for exclusive offers and updates
             </p>
             
@@ -211,7 +211,7 @@ export default function Footer() {
 
             {/* Newsletter signup */}
             <div>
-              <p style={{ color: "var(--footer-muted)", marginBottom: "0.5rem" }}>
+              <p style={{ color: "#ccc", marginBottom: "0.5rem" }}>
                 Subscribe for offers
               </p>
               <form onSubmit={handleSubscribe} style={{ display: "flex", gap: "0.5rem" }}>
@@ -224,10 +224,10 @@ export default function Footer() {
                   style={{
                     padding: "0.5rem",
                     borderRadius: "4px",
-                    border: "1px solid var(--border)",
+                    border: "1px solid #555",
                     flex: "1",
-                    background: "var(--input-bg, var(--glass))",
-                    color: "var(--text)",
+                    background: "#333",
+                    color: "white",
                     outline: "none"
                   }}
                 />
@@ -235,7 +235,7 @@ export default function Footer() {
                   type="submit"
                   style={{
                     padding: "0.5rem 1rem",
-                    background: "var(--gradient)",
+                    background: "linear-gradient(135deg, #ff6b35, #f7931e)",
                     border: "none",
                     borderRadius: "4px",
                     color: "white",
@@ -254,7 +254,7 @@ export default function Footer() {
 
         {/* Bottom section with copyright */}
         <div style={{ 
-          borderTop: "1px solid var(--glass-border)",
+          borderTop: "1px solid #444",
           paddingTop: "1.5rem",
           display: "flex",
           justifyContent: "space-between",
@@ -262,10 +262,10 @@ export default function Footer() {
           flexWrap: "wrap",
           gap: "1rem"
         }}>
-          <div style={{ color: "var(--footer-muted)" }}>
+          <div style={{ color: "#ccc" }}>
             © {new Date().getFullYear()} Nadan Ruchi. All rights reserved.
           </div>
-          <div style={{ display: "flex", gap: "1rem", color: "var(--footer-muted)" }}>
+          <div style={{ display: "flex", gap: "1rem", color: "#ccc" }}>
             <span>Made with ❤️ in Qatar</span>
           </div>
         </div>
@@ -313,7 +313,7 @@ export default function Footer() {
           bottom: "2rem",
           left: "50%",
           transform: "translateX(-50%)",
-          background: "var(--success, #4BB543)",
+          background: "#4BB543",
           color: "white",
           padding: "1rem 2rem",
           borderRadius: "8px",
@@ -341,26 +341,6 @@ export default function Footer() {
           to { 
             opacity: 1;
             transform: translate(-50%, 0);
-          }
-        }
-        
-        /* Light mode compatibility */
-        @media (prefers-color-scheme: light) {
-          :root {
-            --footer-bg: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            --footer-text: #2c3e50;
-            --footer-muted: #6c757d;
-            --input-bg: white;
-          }
-        }
-        
-        /* Dark mode compatibility */
-        @media (prefers-color-scheme: dark) {
-          :root {
-            --footer-bg: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
-            --footer-text: white;
-            --footer-muted: #adb5bd;
-            --input-bg: var(--glass);
           }
         }
       `}</style>
