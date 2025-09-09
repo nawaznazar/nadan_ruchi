@@ -2,45 +2,48 @@
    CSS VARIABLES (CUSTOM PROPERTIES)
    ========================================================================== */
 
+/* ==========================================================================
+   CSS VARIABLES (CUSTOM PROPERTIES) - UPDATED TO GREEN THEME
+   ========================================================================== */
+
 :root {
   /* Light Mode (default) */
-  --bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  --text: #2d3748;
-  --muted: #718096;
-  --primary: #065f46;
-  --primary-light: #0c9a6d;
+  --bg: linear-gradient(135deg, #f5f7fa 0%, #d1fae5 100%);
+  --text: #1f2937;
+  --muted: #6b7280;
+  --primary: #059669; /* emerald green */
+  --primary-light: #10b981;
   --primary-contrast: #ecfdf5;
-  --card: rgba(255, 255, 255, 0.8);
-  --card-border: rgba(255, 255, 255, 0.5);
-  --border: rgba(255, 255, 255, 0.6);
+  --card: rgba(255, 255, 255, 0.85);
+  --card-border: rgba(0, 0, 0, 0.05);
+  --border: rgba(0, 0, 0, 0.1);
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
-  --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  --gradient: linear-gradient(135deg, #065f46 0%, #0c9a6d 100%);
-  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  --glass: rgba(255, 255, 255, 0.25);
-  --glass-border: rgba(255, 255, 255, 0.18);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  --glass: rgba(255, 255, 255, 0.3);
+  --glass-border: rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="dark"] {
   /* Dark Mode */
-  --bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --bg: linear-gradient(135deg, #0f172a 0%, #064e3b 100%);
   --text: #e2e8f0;
-  --muted: #94a3b8;
-  --primary: #34d399;
-  --primary-light: #65e3b8;
-  --primary-contrast: #052e2b;
-  --card: rgba(15, 23, 42, 0.7);
-  --card-border: rgba(255, 255, 255, 0.1);
+  --muted: #9ca3af;
+  --primary: #34d399; /* lighter emerald */
+  --primary-light: #6ee7b7;
+  --primary-contrast: #052e16;
+  --card: rgba(15, 23, 42, 0.85);
+  --card-border: rgba(255, 255, 255, 0.05);
   --border: rgba(255, 255, 255, 0.1);
-  --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --gradient: linear-gradient(135deg, #34d399 0%, #65e3b8 100%);
-  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  --glass: rgba(15, 23, 42, 0.5);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+  --gradient: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  --card-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+  --glass: rgba(31, 41, 55, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
-
 /* ==========================================================================
    BASE STYLES & RESET
    ========================================================================== */
