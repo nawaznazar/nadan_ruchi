@@ -1,11 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaFacebookF, FaInstagram, FaWhatsapp, FaUtensils, FaMapMarkerAlt, FaPhoneAlt } from "react-icons/fa";
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (email && email.includes("@")) {
+      setSubscribed(true);
+      setEmail("");
+      setTimeout(() => setSubscribed(false), 3000);
+    }
+  };
+
   return (
     <footer style={{ 
-      background: "linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%)",
-      color: "white",
+      background: "var(--footer-bg, linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%))",
+      color: "var(--footer-text, white)",
       padding: "3rem 0 1.5rem",
       marginTop: "3rem",
       borderTop: "1px solid var(--glass-border)"
@@ -37,7 +49,7 @@ export default function Footer() {
               </span>
             </div>
             <p style={{ 
-              color: "var(--muted)", 
+              color: "var(--footer-muted)", 
               lineHeight: "1.6",
               marginBottom: "1rem"
             }}>
@@ -45,23 +57,23 @@ export default function Footer() {
               Experience the taste of God's Own Country in the heart of Qatar.
             </p>
             
-            {/* Quick contact info */}
+            {/* Contact info */}
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <FaMapMarkerAlt style={{ color: "var(--primary)" }} />
-                <span>Al Wakrah, Doha, Qatar</span>
+                <span style={{ color: "var(--footer-text)" }}>Al Wakrah, Doha, Qatar</span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <FaPhoneAlt style={{ color: "var(--primary)" }} />
                 <a
                   href="tel:+97455555555"
                   style={{
-                    color: "white",
+                    color: "var(--footer-text)",
                     textDecoration: "none",
                     transition: "color 0.3s ease",
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.color = "var(--primary)"}
-                  onMouseLeave={(e) => e.currentTarget.style.color = "white"}
+                  onMouseLeave={(e) => e.currentTarget.style.color = "var(--footer-text)"}
                 >
                   +974 5555 5555
                 </a>
@@ -73,7 +85,7 @@ export default function Footer() {
           <div>
             <h4 style={{ 
               marginBottom: "1rem", 
-              color: "white",
+              color: "var(--footer-text)",
               borderBottom: "2px solid var(--primary)",
               paddingBottom: "0.5rem",
               display: "inline-block"
@@ -92,7 +104,7 @@ export default function Footer() {
                   <a
                     href={link.path}
                     style={{
-                      color: "var(--muted)",
+                      color: "var(--footer-muted)",
                       textDecoration: "none",
                       transition: "all 0.3s ease",
                       display: "inline-block"
@@ -102,7 +114,7 @@ export default function Footer() {
                       e.currentTarget.style.transform = "translateX(5px)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.color = "var(--muted)";
+                      e.currentTarget.style.color = "var(--footer-muted)";
                       e.currentTarget.style.transform = "translateX(0)";
                     }}
                   >
@@ -117,14 +129,14 @@ export default function Footer() {
           <div>
             <h4 style={{ 
               marginBottom: "1rem", 
-              color: "white",
+              color: "var(--footer-text)",
               borderBottom: "2px solid var(--primary)",
               paddingBottom: "0.5rem",
               display: "inline-block"
             }}>
               Opening Hours
             </h4>
-            <div style={{ color: "var(--muted)" }}>
+            <div style={{ color: "var(--footer-muted)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
                 <span>Monday - Friday</span>
                 <span>10:00 AM - 11:00 PM</span>
@@ -149,14 +161,14 @@ export default function Footer() {
           <div>
             <h4 style={{ 
               marginBottom: "1rem", 
-              color: "white",
+              color: "var(--footer-text)",
               borderBottom: "2px solid var(--primary)",
               paddingBottom: "0.5rem",
               display: "inline-block"
             }}>
               Follow Us
             </h4>
-            <p style={{ color: "var(--muted)", marginBottom: "1rem" }}>
+            <p style={{ color: "var(--footer-muted)", marginBottom: "1rem" }}>
               Stay connected for exclusive offers and updates
             </p>
             
@@ -199,23 +211,28 @@ export default function Footer() {
 
             {/* Newsletter signup */}
             <div>
-              <p style={{ color: "var(--muted)", marginBottom: "0.5rem" }}>
+              <p style={{ color: "var(--footer-muted)", marginBottom: "0.5rem" }}>
                 Subscribe for offers
               </p>
-              <div style={{ display: "flex", gap: "0.5rem" }}>
+              <form onSubmit={handleSubscribe} style={{ display: "flex", gap: "0.5rem" }}>
                 <input
                   type="email"
                   placeholder="Your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                   style={{
                     padding: "0.5rem",
                     borderRadius: "4px",
-                    border: "none",
+                    border: "1px solid var(--border)",
                     flex: "1",
-                    background: "var(--glass)",
-                    color: "white"
+                    background: "var(--input-bg, var(--glass))",
+                    color: "var(--text)",
+                    outline: "none"
                   }}
                 />
                 <button
+                  type="submit"
                   style={{
                     padding: "0.5rem 1rem",
                     background: "var(--gradient)",
@@ -230,7 +247,7 @@ export default function Footer() {
                 >
                   Subscribe
                 </button>
-              </div>
+              </form>
             </div>
           </div>
         </div>
@@ -245,10 +262,10 @@ export default function Footer() {
           flexWrap: "wrap",
           gap: "1rem"
         }}>
-          <div style={{ color: "var(--muted)" }}>
+          <div style={{ color: "var(--footer-muted)" }}>
             © {new Date().getFullYear()} Nadan Ruchi. All rights reserved.
           </div>
-          <div style={{ display: "flex", gap: "1rem", color: "var(--muted)" }}>
+          <div style={{ display: "flex", gap: "1rem", color: "var(--footer-muted)" }}>
             <span>Made with ❤️ in Qatar</span>
           </div>
         </div>
@@ -289,12 +306,62 @@ export default function Footer() {
         <FaWhatsapp />
       </a>
 
+      {/* Subscription success popup */}
+      {subscribed && (
+        <div style={{
+          position: "fixed",
+          bottom: "2rem",
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: "var(--success, #4BB543)",
+          color: "white",
+          padding: "1rem 2rem",
+          borderRadius: "8px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+          zIndex: 1000,
+          animation: "slideUp 0.3s ease-out"
+        }}>
+          ✅ Subscribed successfully! You'll receive our offers soon.
+        </div>
+      )}
+
       {/* Animation keyframes */}
       <style>{`
         @keyframes pulse {
           0% { transform: scale(1); }
           50% { transform: scale(1.05); }
           100% { transform: scale(1); }
+        }
+        
+        @keyframes slideUp {
+          from { 
+            opacity: 0;
+            transform: translate(-50%, 20px);
+          }
+          to { 
+            opacity: 1;
+            transform: translate(-50%, 0);
+          }
+        }
+        
+        /* Light mode compatibility */
+        @media (prefers-color-scheme: light) {
+          :root {
+            --footer-bg: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            --footer-text: #2c3e50;
+            --footer-muted: #6c757d;
+            --input-bg: white;
+          }
+        }
+        
+        /* Dark mode compatibility */
+        @media (prefers-color-scheme: dark) {
+          :root {
+            --footer-bg: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
+            --footer-text: white;
+            --footer-muted: #adb5bd;
+            --input-bg: var(--glass);
+          }
         }
       `}</style>
     </footer>
