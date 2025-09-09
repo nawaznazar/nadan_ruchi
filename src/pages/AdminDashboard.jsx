@@ -20,7 +20,14 @@ const DEFAULT_USERS = [
 function useAdminMenu() {
   const [items, setItems] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : MENU;
+    const parsedItems = saved ? JSON.parse(saved) : MENU;
+    
+    // Ensure all items have quantity properties with defaults
+    return parsedItems.map(item => ({
+      availableQty: 0,
+      maxCartQty: 10,
+      ...item
+    }));
   });
 
   // Helper function to update state and persist to localStorage
@@ -158,8 +165,10 @@ export default function AdminDashboard() {
       ...updatedItem,
       price: Number(updatedItem.price),
       spicy: updatedItem.spicy === "" ? 0 : Number(updatedItem.spicy),
-      unavailable: !!updatedItem.unavailable,
-      highlight: updatedItem.unavailable ? false : updatedItem.highlight,
+      availableQty: Number(updatedItem.availableQty) || 0,
+      maxCartQty: Number(updatedItem.maxCartQty) || 10,
+      unavailable: updatedItem.availableQty <= 0 || !!updatedItem.unavailable,
+      highlight: (updatedItem.availableQty <= 0 || updatedItem.unavailable) ? false : updatedItem.highlight,
     };
     upsert(itemToSave);
     window.dispatchEvent(new Event("menu-updated"));
@@ -212,6 +221,13 @@ export default function AdminDashboard() {
   const handleCategoryHighlightToggle = (category, isHighlighted) => {
     updateCategory(category, { highlight: isHighlighted });
     setSaveMsg(`✅ All ${category} items ${isHighlighted ? 'highlighted' : 'un-highlighted'}!`);
+    setTimeout(() => setSaveMsg(null), 2500);
+  };
+
+  // Handle category quantity update
+  const handleCategoryQuantityUpdate = (category, quantityType, value) => {
+    updateCategory(category, { [quantityType]: Number(value) });
+    setSaveMsg(`✅ ${quantityType === 'availableQty' ? 'Available quantity' : 'Max cart quantity'} updated for all ${category} items!`);
     setTimeout(() => setSaveMsg(null), 2500);
   };
 
@@ -286,7 +302,7 @@ export default function AdminDashboard() {
         {/* Category Toggles */}
         <div className="card" style={{ marginBottom: "1rem", padding: "1rem" }}>
           <h3 style={{ marginBottom: "1rem" }}>Category Controls</h3>
-          <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1rem" }}>
+          <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
             {categories.map(category => {
               const categoryItems = items.filter(item => item.category === category);
               const allUnavailable = categoryItems.length > 0 && categoryItems.every(item => item.unavailable);
@@ -310,7 +326,7 @@ export default function AdminDashboard() {
                     </label>
                   </div>
                   
-                  <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+                  <div className="row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
                     <span>Mark all as highlight:</span>
                     <label className="toggle-label">
                       <span className="toggle-switch">
@@ -322,6 +338,28 @@ export default function AdminDashboard() {
                         <span className="slider"></span>
                       </span>
                     </label>
+                  </div>
+
+                  <div className="row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                    <span>Available Qty:</span>
+                    <input 
+                      type="number" 
+                      min="0"
+                      defaultValue={categoryItems[0]?.availableQty || 0}
+                      onBlur={(e) => handleCategoryQuantityUpdate(category, 'availableQty', e.target.value)}
+                      style={{ width: "60px", padding: "0.3rem", borderRadius: "4px", border: "1px solid var(--border)" }}
+                    />
+                  </div>
+
+                  <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+                    <span>Max Cart Qty:</span>
+                    <input 
+                      type="number" 
+                      min="1"
+                      defaultValue={categoryItems[0]?.maxCartQty || 10}
+                      onBlur={(e) => handleCategoryQuantityUpdate(category, 'maxCartQty', e.target.value)}
+                      style={{ width: "60px", padding: "0.3rem", borderRadius: "4px", border: "1px solid var(--border)" }}
+                    />
                   </div>
                 </div>
               );
@@ -343,6 +381,8 @@ export default function AdminDashboard() {
               desc: "",
               highlight: false,
               unavailable: false,
+              availableQty: 0,
+              maxCartQty: 10,
             }}
             onCancel={() => setEditingId(null)}
             onSave={(item) => handleSave({ ...item, id: generateId() })}
@@ -482,6 +522,19 @@ export default function AdminDashboard() {
         .toggle-switch input:disabled + .slider:before {
           background-color: #f5f5f5;
         }
+
+        /* Stock indicators */
+        .stock-low {
+          color: #e67e22;
+          font-weight: bold;
+        }
+        .stock-out {
+          color: #e74c3c;
+          font-weight: bold;
+        }
+        .stock-ok {
+          color: #27ae60;
+        }
       `}</style>
     </div>
   );
@@ -530,20 +583,36 @@ function UserEditForm({ user, onCancel, onSave }) {
 
 // ================== ITEM CARD ==================
 function ItemCard({ item, onEdit, onDelete, isEditing, onSave }) {
-  const isUnavailable = item.unavailable;
+  const isUnavailable = item.unavailable || item.availableQty <= 0;
+
+  // Get stock status class
+  const getStockStatus = () => {
+    if (item.availableQty <= 0) return "stock-out";
+    if (item.availableQty <= 5) return "stock-low";
+    return "stock-ok";
+  };
 
   return (
     <div className="card" style={{ padding: "1rem", position: "relative", opacity: isUnavailable ? 0.5 : 1, filter: isUnavailable ? "grayscale(70%)" : "none" }}>
       {/* Unavailable indicator badge */}
       {isUnavailable && (
         <span style={{ position: "absolute", top: "0.5rem", right: "0.5rem", background: "red", color: "white", fontSize: "0.7rem", padding: "0.2rem 0.5rem", borderRadius: "4px" }}>
-          Unavailable
+          {item.availableQty <= 0 ? "Out of Stock" : "Unavailable"}
         </span>
       )}
 
       <strong>{item.name}</strong>
       <div className="muted">{item.category} • {item.veg ? "Veg" : "Non-veg"}</div>
       <div>Price: QAR {item.price}</div>
+      
+      {/* Quantity information */}
+      <div className={getStockStatus()}>
+        Available: {item.availableQty}
+      </div>
+      <div className="muted">
+        Max per order: {item.maxCartQty}
+      </div>
+      
       {item.spicy > 0 && <div style={{ color: "tomato" }}>Spicy Level: {item.spicy}</div>}
       {item.img && <img src={item.img} alt={item.name} style={{ width: "100%", height: "150px", objectFit: "cover", borderRadius: "0.5rem", marginTop: "0.5rem" }} />}
       {item.desc && <div className="muted" style={{marginTop: "0.5rem"}}>{item.desc}</div>}
@@ -568,12 +637,17 @@ function InlineEditForm({ item, onCancel, onSave }) {
     e.preventDefault();
     if (!form.name) return alert("Name is required");
     if (!form.price || Number(form.price) <= 0) return alert("Price must be greater than 0");
+    if (form.availableQty < 0) return alert("Available quantity cannot be negative");
+    if (form.maxCartQty < 1) return alert("Max cart quantity must be at least 1");
+    
     onSave({
       ...form,
       price: Number(form.price),
       spicy: form.spicy === "" ? 0 : Number(form.spicy),
-      unavailable: !!form.unavailable,
-      highlight: form.unavailable ? false : form.highlight,
+      availableQty: Number(form.availableQty) || 0,
+      maxCartQty: Number(form.maxCartQty) || 10,
+      unavailable: (Number(form.availableQty) <= 0 || !!form.unavailable),
+      highlight: (Number(form.availableQty) <= 0 || form.unavailable) ? false : form.highlight,
     });
   };
 
@@ -634,6 +708,24 @@ function InlineEditForm({ item, onCancel, onSave }) {
           placeholder="Description" 
           style={{ padding: "0.5rem", borderRadius: "4px", border: "1px solid var(--border)" }}
         />
+        
+        {/* Quantity fields */}
+        <input 
+          type="number" 
+          min="0"
+          value={form.availableQty} 
+          onChange={(e) => setForm({ ...form, availableQty: e.target.value })} 
+          placeholder="Available Qty" 
+          style={{ padding: "0.5rem", borderRadius: "4px", border: "1px solid var(--border)" }}
+        />
+        <input 
+          type="number" 
+          min="1"
+          value={form.maxCartQty} 
+          onChange={(e) => setForm({ ...form, maxCartQty: e.target.value })} 
+          placeholder="Max Cart Qty" 
+          style={{ padding: "0.5rem", borderRadius: "4px", border: "1px solid var(--border)" }}
+        />
       </div>
 
       <div style={{ marginTop: "1rem", display: "flex", gap: "1rem", flexWrap: "wrap" }}>
@@ -641,8 +733,8 @@ function InlineEditForm({ item, onCancel, onSave }) {
           <span className="toggle-switch">
             <input 
               type="checkbox" 
-              checked={form.highlight && !form.unavailable} 
-              disabled={form.unavailable} 
+              checked={form.highlight && !form.unavailable && form.availableQty > 0} 
+              disabled={form.unavailable || form.availableQty <= 0} 
               onChange={(e) => setForm({ ...form, highlight: e.target.checked })} 
             />
             <span className="slider"></span>
@@ -654,7 +746,11 @@ function InlineEditForm({ item, onCancel, onSave }) {
             <input 
               type="checkbox" 
               checked={form.unavailable || false} 
-              onChange={(e) => setForm({ ...form, unavailable: e.target.checked, highlight: e.target.checked ? false : form.highlight })} 
+              onChange={(e) => setForm({ 
+                ...form, 
+                unavailable: e.target.checked, 
+                highlight: e.target.checked ? false : form.highlight 
+              })} 
             />
             <span className="slider"></span>
           </span>
