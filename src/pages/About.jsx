@@ -65,7 +65,7 @@ export default function About() {
         <p className="muted" style={{ maxWidth: '600px', margin: '0.5rem auto 1.5rem auto' }}>
           Bringing Malayali food culture to your table, wherever you are in Qatar.
         </p>
-        <a href="/menu" className="btn btn-primary">Explore Our Menu</a>
+        <Link to="/menu" className="btn btn-primary">Explore Our Menu</Link>
       </div>
     </div>
   );
