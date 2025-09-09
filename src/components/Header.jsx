@@ -16,8 +16,7 @@ export default function Header() {
     setCartCount(totalQty);
   }, [items]);
 
-  const navClass = ({ isActive }) =>
-    `nav-link ${isActive ? "active" : ""}`;
+  const navClass = ({ isActive }) => `nav-link ${isActive ? "active" : ""}`;
 
   const customerLinks = (
     <>
@@ -52,8 +51,8 @@ export default function Header() {
         <nav className="navbar">
           {/* Brand */}
           <Link className="brand" to="/" onClick={() => setMenuOpen(false)}>
-            <span className="brand-icon">🌱</span>
-            <span className="brand-text">My Green</span>
+            <img src="/img/logo.png" alt="Nadan Ruchi Logo" className="brand-logo" />
+            <span className="brand-text">Nadan Ruchi</span>
           </Link>
 
           {/* Mobile Toggle */}
@@ -114,21 +113,33 @@ export default function Header() {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          font-size: 1.5rem;
-          font-weight: 700;
           text-decoration: none;
         }
+        .brand-logo {
+          width: 32px;
+          height: auto;
+        }
         .brand-text {
+          font-size: 1.5rem;
+          font-weight: 700;
           background: linear-gradient(135deg, #059669, #10b981);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
         .menu-toggle {
           display: none;
-          font-size: 1.5rem;
+          font-size: 1.8rem;
           background: none;
           border: none;
           cursor: pointer;
+          color: var(--text);
+          transition: color 0.3s, transform 0.2s;
+        }
+        .menu-toggle:hover {
+          transform: scale(1.1);
+        }
+        [data-theme="dark"] .menu-toggle {
+          color: #f9fafb;
         }
         .nav-links {
           display: flex;
@@ -199,17 +210,24 @@ export default function Header() {
             width: 100%;
             flex-direction: column;
             background: var(--card);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transform: translateY(-200%);
-            transition: transform 0.3s ease-in-out;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.35s ease-in-out;
           }
           .nav-links.open {
+            max-height: 500px;
+            opacity: 1;
             transform: translateY(0);
           }
           .nav-link {
             width: 100%;
             text-align: center;
             padding: 1rem;
+            font-size: 1.1rem;
             border-bottom: 1px solid var(--border);
           }
         }
