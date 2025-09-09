@@ -2,7 +2,6 @@
    CSS VARIABLES (CUSTOM PROPERTIES)
    ========================================================================== */
 
-
 :root {
   /* Light Mode (default) */
   --bg: linear-gradient(135deg, #f5f7fa 0%, #d1fae5 100%);
@@ -20,8 +19,9 @@
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   --gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
   --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  --glass: rgba(255, 255, 255, 0.3);
+  --glass: rgba(255, 255, 255, 0.75);
   --glass-border: rgba(0, 0, 0, 0.08);
+  --input-bg: rgba(255, 255, 255, 0.9);
 }
 
 [data-theme="dark"] {
@@ -38,19 +38,11 @@
   --shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
   --gradient: linear-gradient(135deg, #34d399 0%, #10b981 100%);
   --card-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
-  --glass: rgba(31, 41, 55, 0.5);
+  --glass: rgba(17, 24, 39, 0.75);
   --glass-border: rgba(255, 255, 255, 0.08);
+  --input-bg: rgba(31, 41, 55, 0.8);
 }
 
-:root {
-  --glass: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(0, 0, 0, 0.08);
-}
-
-[data-theme="dark"] {
-  --glass: rgba(17, 24, 39, 0.75); /* dark frosted glass */
-  --glass-border: rgba(255, 255, 255, 0.08);
-}
 /* ==========================================================================
    BASE STYLES & RESET
    ========================================================================== */
@@ -153,6 +145,7 @@ nav {
   gap: 0.6rem; 
   font-weight: 800; 
   font-size: 1.5rem;
+  color: var(--text);
 }
 
 .brand .dot { 
@@ -176,8 +169,7 @@ nav {
   padding: 0.5rem 1rem;
   font-weight: 600;
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.3);
-  color: #ffffff;
+  color: var(--text);
   transition: all 0.4s ease;
   overflow: hidden;
 }
@@ -189,7 +181,7 @@ nav {
   height: 4px;
   left: 50%;
   bottom: -4px;
-  background: linear-gradient(90deg, #059669, #047857);
+  background: var(--gradient);
   transition: all 0.3s ease;
   border-radius: 2px;
 }
@@ -201,32 +193,14 @@ nav {
 }
 
 .nav-links .nav-link:hover {
-  background: linear-gradient(135deg, rgba(5,150,105,0.45), rgba(7,121,77,0.6));
+  background: linear-gradient(135deg, rgba(5,150,105,0.15), rgba(7,121,77,0.2));
   backdrop-filter: blur(12px);
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 8px 25px rgba(5, 150, 105, 0.5), 0 0 15px rgba(5, 150, 105, 0.3);
+  transform: translateY(-2px);
 }
 
 .nav-links .nav-link.active {
-  background: linear-gradient(135deg, rgba(5,150,105,0.55), rgba(7,121,77,0.7));
-  box-shadow: 0 10px 30px rgba(5,150,105,0.55), 0 0 20px rgba(5,150,105,0.4);
-}
-
-.nav-links .nav-link::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: rgba(255,255,255,0.05);
-  transform: rotate(45deg) scale(0);
-  transition: transform 0.5s ease;
-  border-radius: 50%;
-}
-
-.nav-links .nav-link:hover::before {
-  transform: rotate(45deg) scale(1);
+  background: linear-gradient(135deg, rgba(5,150,105,0.25), rgba(7,121,77,0.3));
+  color: var(--primary);
 }
 
 /* ==========================================================================
@@ -445,12 +419,12 @@ nav {
    FORM ELEMENTS
    ========================================================================== */
 
-input, select {
+input, select, textarea {
   width: 100%;
   padding: 1rem 1.5rem;
   border-radius: 12px;
   border: 1px solid var(--border);
-  background: var(--glass);
+  background: var(--input-bg);
   color: var(--text);
   font-size: 1rem;
   transition: all 0.3s ease;
@@ -458,7 +432,7 @@ input, select {
   backdrop-filter: blur(10px);
 }
 
-input:focus, select:focus {
+input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(5, 95, 70, 0.2);
@@ -541,6 +515,7 @@ footer {
   margin-top: auto;
   background: var(--glass);
   backdrop-filter: blur(10px);
+  color: var(--text);
 }
 
 .footer-content {
@@ -554,6 +529,15 @@ footer {
 .footer-links {
   display: flex;
   gap: 2rem;
+}
+
+.footer-links a {
+  color: var(--text);
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: var(--primary);
 }
 
 /* ==========================================================================
@@ -590,7 +574,7 @@ footer {
 }
 
 /* ==========================================================================
-   WEATHER SPECIFIC STYLES (if needed)
+   WEATHER SPECIFIC STYLES
    ========================================================================== */
 
 .weather-icon {
@@ -825,6 +809,484 @@ body {
 }
 
 /* ==========================================================================
+   ORDER STATUS STYLES
+   ========================================================================== */
+
+/* Animations for order cards */
+.fade-pulse {
+  animation: fadePulse 2s infinite;
+}
+@keyframes fadePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.bounce {
+  animation: bounceAnim 1.5s infinite;
+}
+@keyframes bounceAnim {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.glow {
+  animation: glowAnim 1.5s ease-in-out infinite;
+}
+@keyframes glowAnim {
+  0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+  50% { box-shadow: 0 0 16px rgba(16, 185, 129, 0.8); }
+}
+
+.slide {
+  background: linear-gradient(120deg, #facc15 25%, transparent 50%, #facc15 75%);
+  background-size: 200% auto;
+  animation: slideAnim 2s infinite linear;
+}
+@keyframes slideAnim {
+  0% { background-position: -100px; }
+  100% { background-position: 200px; }
+}
+
+.pop {
+  animation: popAnim 0.5s ease;
+}
+@keyframes popAnim {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.shake {
+  animation: shakeAnim 0.4s ease;
+}
+@keyframes shakeAnim {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+/* Status Badge Styles */
+.status-badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+}
+
+/* Dynamic classes for badge colors */
+.status-badge.pending { background-color: #f97316; }
+.status-badge.preparing { background-color: #3b82f6; }
+.status-badge.ready { background-color: #10b981; }
+.status-badge.ontheway { background-color: #facc15; color: #111; }
+.status-badge.done { background-color: #14b8a6; }
+.status-badge.cancelled { background-color: #ef4444; }
+.status-badge.rejected { background-color: #b91c1c; }
+
+.status-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0,0,0,0.25);
+}
+
+/* Order Card Styles */
+.order-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.2rem;
+  background-color: var(--card);
+  border-left: 6px solid transparent;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* Improve spacing for order contents */
+.order-card h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.2rem;
+}
+.order-card ul {
+  margin: 0.5rem 0 1rem 0;
+  padding-left: 1.2rem;
+}
+.order-card ul li {
+  margin-bottom: 0.4rem;
+}
+.order-card p {
+  margin-bottom: 0.5rem;
+}
+
+/* Row spacing inside order card */
+.order-card .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Button spacing */
+.order-card .btn {
+  margin-top: 0.5rem;
+}
+
+/* ==========================================================================
+   MODAL & POPUP STYLES
+   ========================================================================== */
+
+/* Modal overlay */
+.modal-overlay, .popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease-in-out;
+  backdrop-filter: blur(5px);
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* Modal card */
+.modal, .popup-card {
+  background: var(--card);
+  color: var(--text);
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  animation: scaleUp 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Popup card specific */
+.popup-card {
+  background: linear-gradient(135deg, #ffffff, #f8f9fa);
+  text-align: center;
+  width: 95%;
+  max-width: 420px;
+}
+
+[data-theme="dark"] .popup-card {
+  background: linear-gradient(135deg, #1f1f1f, #2d2d2d);
+}
+
+/* Success checkmark */
+.checkmark {
+  font-size: 4rem;
+  color: #10b981;
+  margin-bottom: 1rem;
+  animation: popIn 0.4s ease forwards;
+  text-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
+}
+
+/* Headings */
+.popup-card h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.popup-card p {
+  font-size: 1rem;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+/* Button */
+.popup-card .btn {
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.popup-card .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.5);
+}
+
+/* Inputs & textarea */
+.modal input,
+.modal textarea,
+.modal select {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background-color: var(--input-bg);
+  color: var(--text);
+  font-size: 1rem;
+  transition: all 0.25s ease;
+}
+
+.modal input:focus,
+.modal textarea:focus,
+.modal select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 8px rgba(16,185,129,0.3);
+}
+
+/* Buttons */
+.modal .btn {
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.modal .btn:hover { transform: translateY(-2px); }
+
+.modal .btn.outline {
+  background: transparent;
+  color: var(--text);
+  border: 2px solid var(--primary);
+}
+.modal .btn.outline:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ==========================================================================
+   PROFILE STYLES
+   ========================================================================== */
+
+.profile-card {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 16px;
+  background-color: var(--card);
+  color: var(--text);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Profile image */
+.profile-card img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  margin-bottom: 0.5rem;
+}
+
+/* Form inputs */
+.profile-card input[type="text"],
+.profile-card input[type="email"],
+.profile-card input[type="file"] {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background-color: var(--input-bg);
+  color: var(--text);
+  font-size: 1rem;
+  transition: all 0.25s ease;
+}
+
+.profile-card input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.profile-card input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 8px rgba(16,185,129,0.3);
+}
+
+/* Contact number flex wrapper */
+.contact-wrapper {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.contact-wrapper span {
+  padding: 0.5rem;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px 0 0 8px;
+  color: var(--text);
+}
+
+.contact-wrapper input {
+  flex: 1;
+  border-radius: 0 8px 8px 0;
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  font-size: 1rem;
+  color: var(--text);
+  background-color: var(--input-bg);
+}
+
+/* Buttons */
+.profile-card .btn {
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.profile-card .btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Success popup */
+.profile-success-popup {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #4ade80;
+  color: #065f46;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 1000;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+/* ==========================================================================
+   TOGGLE SWITCH STYLES
+   ========================================================================== */
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* Toggle switch container */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 28px;
+}
+
+/* Hide default checkbox */
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Slider */
+.toggle-switch .slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 34px;
+  transition: 0.4s;
+}
+
+/* Slider circle */
+.toggle-switch .slider:before {
+  content: "";
+  position: absolute;
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.4s;
+}
+
+/* Checked state */
+.toggle-switch input:checked + .slider {
+  background-color: #4BB543;
+}
+
+/* Move the circle when checked */
+.toggle-switch input:checked + .slider:before {
+  transform: translateX(32px);
+}
+
+/* Disabled state */
+.toggle-switch input:disabled + .slider {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.toggle-switch input:disabled + .slider:before {
+  background-color: #f5f5f5;
+}
+
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  80% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes modalFadeIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ==========================================================================
    MOBILE RESPONSIVENESS
    ========================================================================== */
 
@@ -932,572 +1394,41 @@ body {
   }
 }
 
-/* Popup overlay background */
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.65);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-  animation: fadeIn 0.3s ease-in-out;
-  backdrop-filter: blur(5px);
-}
-
-/* Popup card */
-.popup-card {
-  background: linear-gradient(135deg, #ffffff, #f8f9fa);
-  border-radius: 20px;
-  padding: 2.5rem 2rem;
-  text-align: center;
-  width: 95%;
-  max-width: 420px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-  animation: scaleUp 0.35s ease-in-out;
-  position: relative;
-}
-
-/* Success checkmark */
-.checkmark {
-  font-size: 4rem;
-  color: #10b981;
-  margin-bottom: 1rem;
-  animation: popIn 0.4s ease forwards;
-  text-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
-}
-
-/* Headings */
-.popup-card h2 {
-  margin-bottom: 0.5rem;
-  font-size: 1.8rem;
-  font-weight: bold;
-}
-
-.popup-card p {
-  font-size: 1rem;
-  color: #6b7280;
-  margin-bottom: 1.5rem;
-}
-
-/* Button */
-.popup-card .btn {
-  padding: 0.8rem 1.5rem;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #10b981, #34d399);
-  color: white;
-  font-size: 1rem;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-}
-
-.popup-card .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.5);
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes scaleUp {
-  from { transform: scale(0.85); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-@keyframes popIn {
-  0% { transform: scale(0); opacity: 0; }
-  80% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(1); }
-}
-
-/* ==========================================================================
-   ORDER STATUS STYLES (DARK MODE FRIENDLY)
-   ========================================================================== */
-
-/* Animations for order cards */
-.fade-pulse {
-  animation: fadePulse 2s infinite;
-}
-@keyframes fadePulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-.bounce {
-  animation: bounceAnim 1.5s infinite;
-}
-@keyframes bounceAnim {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-
-.glow {
-  animation: glowAnim 1.5s ease-in-out infinite;
-}
-@keyframes glowAnim {
-  0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
-  50% { box-shadow: 0 0 16px rgba(16, 185, 129, 0.8); }
-}
-
-.slide {
-  background: linear-gradient(120deg, #facc15 25%, transparent 50%, #facc15 75%);
-  background-size: 200% auto;
-  animation: slideAnim 2s infinite linear;
-}
-@keyframes slideAnim {
-  0% { background-position: -100px; }
-  100% { background-position: 200px; }
-}
-
-.pop {
-  animation: popAnim 0.5s ease;
-}
-@keyframes popAnim {
-  0% { transform: scale(0.85); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.shake {
-  animation: shakeAnim 0.4s ease;
-}
-@keyframes shakeAnim {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-3px); }
-  75% { transform: translateX(3px); }
-}
-
-/* ==========================================================================
-   STATUS BADGE STYLES (DARK MODE FRIENDLY)
-   ========================================================================== */
-.status-badge {
-  display: inline-block;
-  padding: 0.35rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  color: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  transition: all 0.3s ease;
-}
-
-/* Dynamic classes for badge colors */
-.status-badge.pending { background-color: #f97316; }
-.status-badge.preparing { background-color: #3b82f6; }
-.status-badge.ready { background-color: #10b981; }
-.status-badge.ontheway { background-color: #facc15; color: #111; }
-.status-badge.done { background-color: #14b8a6; }
-.status-badge.cancelled { background-color: #ef4444; }
-.status-badge.rejected { background-color: #b91c1c; }
-
-.status-badge:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 12px rgba(0,0,0,0.25);
-}
-
-/* ==========================================================================
-   ORDER CARD STYLES (SPACING & DARK MODE)
-   ========================================================================== */
-.order-card {
-  transition: all 0.3s ease;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.2rem;
-  background-color: var(--card); /* Uses theme variable */
-  border-left: 6px solid transparent;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-
-.order-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-}
-
-/* Improve spacing for order contents */
-.order-card h3 {
-  margin-bottom: 0.75rem;
-  font-size: 1.2rem;
-}
-.order-card ul {
-  margin: 0.5rem 0 1rem 0;
-  padding-left: 1.2rem;
-}
-.order-card ul li {
-  margin-bottom: 0.4rem;
-}
-.order-card p {
-  margin-bottom: 0.5rem;
-}
-
-/* Row spacing inside order card */
-.order-card .row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-/* Button spacing */
-.order-card .btn {
-  margin-top: 0.5rem;
-}
-
-/* ==========================================================================
-   DARK MODE COMPATIBILITY
-   ========================================================================== */
-body[data-theme="dark"] .order-card {
-  background-color: #1f1f1f;
-  color: #f5f5f5;
-}
-body[data-theme="dark"] .status-badge {
-  box-shadow: 0 2px 6px rgba(255,255,255,0.1);
-}
-/* Modal overlay */
-.modal, .popup-overlay {
-  position: fixed;
-  top:0; left:0; right:0; bottom:0;
-  background: rgba(0,0,0,0.6);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:1000;
-  backdrop-filter: blur(4px);
-}
-
-/* Modal card */
-.modal-card, .popup-card {
-  width: 400px;
-  max-width: 90%;
-  padding: 2rem;
-  border-radius: 16px;
-  background-color: var(--card);
-  color: var(--text);
-  box-shadow: 0 8px 28px rgba(0,0,0,0.25);
-  text-align: center;
-}
-
-/* Inputs & textarea */
-.modal-card input,
-.modal-card textarea,
-.modal-card select {
-  width: 100%;
-  padding: 0.8rem;
-  margin-bottom: 1rem;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background-color: var(--input-bg);
-  color: var(--text);
-  font-size: 1rem;
-  transition: all 0.25s ease;
-}
-
-.modal-card input:focus,
-.modal-card textarea:focus,
-.modal-card select:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 8px rgba(16,185,129,0.3);
-}
-
-/* Buttons */
-.modal-card .btn {
-  padding: 0.8rem 1.5rem;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #10b981, #34d399);
-  color: #fff;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-.modal-card .btn:hover { transform: translateY(-2px); }
-
-.modal-card .btn.outline {
-  background: transparent;
-  color: var(--text);
-  border: 2px solid var(--primary);
-}
-.modal-card .btn.outline:hover {
-  background: var(--primary);
-  color: #fff;
-}
-
-/* Dark mode variables */
-body[data-theme="dark"] .modal-card,
-body[data-theme="dark"] .popup-card {
-  background-color: #1f1f1f;
-  color: #f5f5f5;
-}
-
-body[data-theme="dark"] .modal-card input,
-body[data-theme="dark"] .modal-card textarea,
-body[data-theme="dark"] .modal-card select {
-  background-color: #2c2c2c;
-  border-color: #555;
-  color: #fff;
-}
-
-body[data-theme="dark"] .modal-card .btn.outline {
-  border-color: #10b981;
-  color: #10b981;
-}
-
-/* Profile card */
-.profile-card {
-  max-width: 400px;
-  margin: 2rem auto;
-  padding: 2rem;
-  border-radius: 16px;
-  background-color: var(--card);
-  color: var(--text);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  transition: background 0.3s, color 0.3s;
-}
-
-/* Profile image */
-.profile-card img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--border);
-  margin-bottom: 0.5rem;
-}
-
-/* Form inputs */
-.profile-card input[type="text"],
-.profile-card input[type="email"],
-.profile-card input[type="file"] {
-  width: 100%;
-  padding: 0.8rem;
-  margin-bottom: 1rem;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background-color: var(--input-bg);
-  color: var(--text);
-  font-size: 1rem;
-  transition: all 0.25s ease;
-}
-
-.profile-card input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.profile-card input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 8px rgba(16,185,129,0.3);
-}
-
-/* Contact number flex wrapper */
-.contact-wrapper {
-  display: flex;
-  margin-bottom: 1rem;
-}
-
-.contact-wrapper span {
-  padding: 0.5rem;
-  background: var(--input-bg);
-  border: 1px solid var(--border);
-  border-radius: 8px 0 0 8px;
-  color: var(--text);
-}
-
-.contact-wrapper input {
-  flex: 1;
-  border-radius: 0 8px 8px 0;
-  border: 1px solid var(--border);
-  padding: 0.5rem;
-  font-size: 1rem;
-  color: var(--text);
-  background-color: var(--input-bg);
-}
-
-/* Buttons */
-.profile-card .btn {
-  padding: 0.8rem 1.5rem;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #10b981, #34d399);
-  color: #fff;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-.profile-card .btn:hover {
-  transform: translateY(-2px);
-}
-
-/* Success popup */
-.profile-success-popup {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #4ade80;
-  color: #065f46;
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  z-index: 1000;
-  opacity: 1;
-  transition: opacity 0.5s ease;
-}
-
-/* Dark mode adjustments */
-body[data-theme="dark"] .profile-card {
-  background-color: #1f1f1f;
-  color: #f5f5f5;
-}
-body[data-theme="dark"] .profile-card input,
-body[data-theme="dark"] .profile-card textarea,
-body[data-theme="dark"] .profile-card select {
-  background-color: #2c2c2c;
-  border-color: #555;
-  color: #fff;
-}
-body[data-theme="dark"] .profile-card .btn {
-  background: linear-gradient(135deg, #059669, #10b981);
-}
-
-/* Overlay covers full screen */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-  padding: 1rem; /* small padding for mobile */
-  box-sizing: border-box;
-}
-
-/* Modal box */
-.modal {
-  background: var(--card);
-  color: var(--text);
-  padding: 2rem;
-  border-radius: 12px;
-  max-width: 500px; /* limit width */
-  width: 100%;       /* responsive on small screens */
-  max-height: 80vh;  /* prevent modal from being taller than screen */
-  overflow-y: auto;  /* scroll if content too tall */
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-  animation: modalFadeIn 0.3s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-/* Toggle container */
-.toggle-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  user-select: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text);
-}
-
-/* Toggle switch container */
-.toggle-switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 28px;
-}
-
-/* Hide default checkbox */
-.toggle-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-/* Slider */
-.toggle-switch .slider {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  border-radius: 34px;
-  transition: 0.4s;
-}
-
-/* Slider circle */
-.toggle-switch .slider:before {
-  content: "";
-  position: absolute;
-  height: 22px;
-  width: 22px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  border-radius: 50%;
-  transition: 0.4s;
-}
-
-/* Checked state */
-.toggle-switch input:checked + .slider {
-  background-color: #4BB543; /* green when checked */
-}
-
-/* Move the circle when checked */
-.toggle-switch input:checked + .slider:before {
-  transform: translateX(32px);
-}
-
-/* Disabled state */
-.toggle-switch input:disabled + .slider {
-  background-color: #e0e0e0;
-  cursor: not-allowed;
-}
-
-.toggle-switch input:disabled + .slider:before {
-  background-color: #f5f5f5;
-}
-
-@media (max-width: 600px) {
-  .grid {
-    grid-template-columns: 1fr; /* force single column */
+/* Medium devices (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .hero-content h1 {
+    font-size: 2rem;
   }
 
-  .card {
-    padding: 1rem;
-    margin: 0.5rem;
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
   }
 
-  .btn, .btn-glass, .btn-gradient {
-    width: 100%;
-    padding: 0.75rem;
+  .nav-links {
+    gap: 1rem;
   }
 
-  h1, h2, h3 {
-    font-size: 1.25rem;
-    text-align: center;
+  .nav-links .nav-link {
+    font-size: 1rem;
   }
 }
 
-/* ==========================================================================
-   MOBILE RESPONSIVENESS
-   ========================================================================== */
+/* Tablets (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .hero-content h1 {
+    font-size: 2.2rem;
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .weather-widget {
+    max-width: 80%;
+    margin: auto;
+  }
+}
 
 /* Small devices (max-width: 480px) */
 @media (max-width: 480px) {
@@ -1572,38 +1503,85 @@ body[data-theme="dark"] .profile-card .btn {
   }
 }
 
-/* Medium devices (481px - 768px) */
-@media (min-width: 481px) and (max-width: 768px) {
-  .hero-content h1 {
-    font-size: 2rem;
-  }
+/* ==========================================================================
+   DARK MODE COMPATIBILITY
+   ========================================================================== */
 
-  .cards {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.2rem;
-  }
+body[data-theme="dark"] .order-card {
+  background-color: #1f1f1f;
+  color: #f5f5f5;
+}
 
-  .nav-links {
-    gap: 1rem;
-  }
+body[data-theme="dark"] .status-badge {
+  box-shadow: 0 2px 6px rgba(255,255,255,0.1);
+}
 
-  .nav-links .nav-link {
-    font-size: 1rem;
+body[data-theme="dark"] .modal-card,
+body[data-theme="dark"] .popup-card {
+  background-color: #1f1f1f;
+  color: #f5f5f5;
+}
+
+body[data-theme="dark"] .modal-card input,
+body[data-theme="dark"] .modal-card textarea,
+body[data-theme="dark"] .modal-card select {
+  background-color: #2c2c2c;
+  border-color: #555;
+  color: #fff;
+}
+
+body[data-theme="dark"] .modal-card .btn.outline {
+  border-color: #10b981;
+  color: #10b981;
+}
+
+body[data-theme="dark"] .profile-card {
+  background-color: #1f1f1f;
+  color: #f5f5f5;
+}
+
+body[data-theme="dark"] .profile-card input,
+body[data-theme="dark"] .profile-card textarea,
+body[data-theme="dark"] .profile-card select {
+  background-color: #2c2c2c;
+  border-color: #555;
+  color: #fff;
+}
+
+body[data-theme="dark"] .profile-card .btn {
+  background: linear-gradient(135deg, #059669, #10b981);
+}
+
+/* ==========================================================================
+   ACCESSIBILITY & REDUCED MOTION
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
-/* Tablets (769px - 1024px) */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .hero-content h1 {
-    font-size: 2.2rem;
-  }
+/* Focus visibility for accessibility */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
 
-  .cards {
-    grid-template-columns: repeat(2, 1fr);
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: #000;
+    --card-border: #000;
   }
-
-  .weather-widget {
-    max-width: 80%;
-    margin: auto;
+  
+  .card {
+    border: 2px solid var(--border);
   }
 }
