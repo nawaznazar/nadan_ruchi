@@ -95,13 +95,17 @@ export default function Header() {
       </div>
 
       <style jsx>{`
+        /* HEADER */
         .main-header {
           position: sticky;
           top: 0;
           z-index: 1000;
-          background: var(--card);
-          backdrop-filter: blur(10px);
-          box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+          background: var(--glass);
+          backdrop-filter: blur(14px) saturate(150%);
+          -webkit-backdrop-filter: blur(14px) saturate(150%);
+          border-bottom: 1px solid var(--glass-border);
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+          transition: background 0.3s ease, box-shadow 0.3s ease;
         }
         .navbar {
           display: flex;
@@ -109,6 +113,8 @@ export default function Header() {
           align-items: center;
           padding: 0.8rem 0;
         }
+
+        /* BRAND */
         .brand {
           display: flex;
           align-items: center;
@@ -126,6 +132,8 @@ export default function Header() {
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
+
+        /* MENU TOGGLE */
         .menu-toggle {
           display: none;
           font-size: 1.8rem;
@@ -141,6 +149,8 @@ export default function Header() {
         [data-theme="dark"] .menu-toggle {
           color: #f9fafb;
         }
+
+        /* NAV LINKS */
         .nav-links {
           display: flex;
           gap: 1rem;
@@ -153,10 +163,13 @@ export default function Header() {
           padding: 0.5rem 0.8rem;
           border-radius: 6px;
         }
-        .nav-link:hover, .nav-link.active {
-          background: rgba(16,185,129,0.1);
+        .nav-link:hover,
+        .nav-link.active {
+          background: rgba(16, 185, 129, 0.1);
           color: #059669;
         }
+
+        /* CONTROLS */
         .nav-controls {
           display: flex;
           gap: 0.8rem;
@@ -183,10 +196,11 @@ export default function Header() {
           font-weight: 600;
         }
         .logout-btn:hover {
-          box-shadow: 0 5px 15px rgba(239,68,68,0.4);
+          box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
           transform: translateY(-2px);
         }
-        .cart-btn, .orders-btn {
+        .cart-btn,
+        .orders-btn {
           border: 1px solid var(--border);
           padding: 0.5rem 1rem;
           border-radius: 6px;
@@ -200,18 +214,21 @@ export default function Header() {
           border-radius: 50%;
         }
 
-        /* MOBILE */
+        /* MOBILE MENU */
         @media (max-width: 768px) {
-          .menu-toggle { display: block; }
+          .menu-toggle {
+            display: block;
+          }
           .nav-links {
             position: absolute;
             top: 100%;
             left: 0;
             width: 100%;
             flex-direction: column;
-            background: var(--card);
+            background: var(--glass);
             backdrop-filter: blur(12px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             max-height: 0;
             overflow: hidden;
             opacity: 0;
