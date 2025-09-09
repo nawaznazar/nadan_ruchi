@@ -41,10 +41,45 @@ export default function Menu() {
   // Find item in cart by ID
   const getCartItem = (id) => cartItems.find((i) => i.id === id);
 
+  // Get total quantity of an item already in cart
+  const getCartItemQty = (id) => {
+    const item = cartItems.find((i) => i.id === id);
+    return item ? item.qty : 0;
+  };
+
+  // Check if item can be added to cart (respects maxCartQty)
+  const canAddToCart = (item) => {
+    if (item.unavailable || item.availableQty <= 0) return false;
+    
+    const currentQty = getCartItemQty(item.id);
+    const maxAllowed = Math.min(item.maxCartQty, item.availableQty);
+    
+    return currentQty < maxAllowed;
+  };
+
+  // Check if item quantity can be increased
+  const canIncreaseQty = (item) => {
+    if (item.unavailable || item.availableQty <= 0) return false;
+    
+    const currentQty = getCartItemQty(item.id);
+    const maxAllowed = Math.min(item.maxCartQty, item.availableQty);
+    
+    return currentQty < maxAllowed;
+  };
+
   // Merge static MENU data with dynamic updates from admin
   const fullMenu = MENU.map((m) => {
     const updated = dynamicMenu.find((d) => d.id === m.id);
-    return updated ? updated : m;
+    return updated ? { 
+      availableQty: 0,
+      maxCartQty: 10,
+      ...m,
+      ...updated 
+    } : { 
+      availableQty: 0,
+      maxCartQty: 10,
+      ...m 
+    };
   }).concat(
     dynamicMenu.filter((d) => !MENU.some((m) => m.id === d.id))
   );
@@ -53,6 +88,7 @@ export default function Menu() {
   const filtered = fullMenu.filter(
     (i) =>
       !i.unavailable &&
+      i.availableQty > 0 &&
       (category === "All" || i.category === category) &&
       (i.name.toLowerCase().includes(search.toLowerCase()) ||
         i.category.toLowerCase().includes(search.toLowerCase()))
@@ -60,7 +96,7 @@ export default function Menu() {
 
   // Get available highlighted items for today
   const highlightsAvailable = fullMenu.filter(
-    (i) => i.highlight && !i.unavailable
+    (i) => i.highlight && !i.unavailable && i.availableQty > 0
   );
 
   return (
@@ -81,6 +117,8 @@ export default function Menu() {
                 updateQty={updateQty}
                 remove={remove}
                 navigate={navigate}
+                canAddToCart={canAddToCart(item)}
+                canIncreaseQty={canIncreaseQty(item)}
               />
             ))}
           </div>
@@ -115,6 +153,8 @@ export default function Menu() {
             updateQty={updateQty}
             remove={remove}
             navigate={navigate}
+            canAddToCart={canAddToCart(item)}
+            canIncreaseQty={canIncreaseQty(item)}
           />
         ))}
       </div>
@@ -123,8 +163,22 @@ export default function Menu() {
 }
 
 // ================== MENU CARD COMPONENT ==================
-function MenuCard({ item, cartItem, add, updateQty, remove, navigate }) {
-  const isUnavailable = !!item.unavailable;
+function MenuCard({ item, cartItem, add, updateQty, remove, navigate, canAddToCart, canIncreaseQty }) {
+  const isUnavailable = item.unavailable || item.availableQty <= 0;
+
+  // Get stock status message
+  const getStockMessage = () => {
+    if (item.availableQty <= 0) return "Out of Stock";
+    if (item.availableQty <= 5) return `Only ${item.availableQty} left!`;
+    return `${item.availableQty} available`;
+  };
+
+  // Get stock status class
+  const getStockStatus = () => {
+    if (item.availableQty <= 0) return "stock-out";
+    if (item.availableQty <= 5) return "stock-low";
+    return "stock-ok";
+  };
 
   return (
     <div
@@ -150,7 +204,7 @@ function MenuCard({ item, cartItem, add, updateQty, remove, navigate }) {
             borderRadius: "4px",
           }}
         >
-          Unavailable
+          {item.availableQty <= 0 ? "Out of Stock" : "Unavailable"}
         </span>
       )}
 
@@ -158,10 +212,19 @@ function MenuCard({ item, cartItem, add, updateQty, remove, navigate }) {
       <div className="muted">
         {item.category} • {item.veg ? "Veg" : "Non-veg"}
       </div>
+      
+      {/* Stock information */}
+      {!isUnavailable && (
+        <div className={getStockStatus()} style={{ fontSize: "0.9rem", marginTop: "0.3rem" }}>
+          {getStockMessage()}
+        </div>
+      )}
+      
       {/* Spicy level indicator */}
       {item.spicy > 0 && (
         <div style={{ color: "tomato" }}>🌶 Spicy Level: {item.spicy}</div>
       )}
+      
       {/* Item image */}
       {item.img && (
         <img
@@ -176,6 +239,7 @@ function MenuCard({ item, cartItem, add, updateQty, remove, navigate }) {
           }}
         />
       )}
+      
       <p style={{ marginTop: "0.5rem" }}>{item.desc}</p>
       <div style={{ marginTop: "0.5rem", fontWeight: "bold" }}>
         {formatQAR(item.price)}
@@ -188,9 +252,9 @@ function MenuCard({ item, cartItem, add, updateQty, remove, navigate }) {
           <button
             className="btn"
             onClick={() => add({ ...item, qty: 1 })}
-            disabled={isUnavailable}
+            disabled={!canAddToCart}
           >
-            {isUnavailable ? "Unavailable" : "➕ Add to Cart"}
+            {!canAddToCart ? (isUnavailable ? "Unavailable" : "Max Reached") : "➕ Add to Cart"}
           </button>
         ) : (
           // Quantity controls for items already in cart
@@ -216,7 +280,7 @@ function MenuCard({ item, cartItem, add, updateQty, remove, navigate }) {
               <button
                 className="btn outline"
                 onClick={() => updateQty(item.id, cartItem.qty + 1)}
-                disabled={isUnavailable}
+                disabled={!canIncreaseQty}
               >
                 +
               </button>
@@ -235,3 +299,23 @@ function MenuCard({ item, cartItem, add, updateQty, remove, navigate }) {
     </div>
   );
 }
+
+// Add CSS for stock indicators
+const styles = `
+.stock-low {
+  color: #e67e22;
+  font-weight: bold;
+}
+.stock-out {
+  color: #e74c3c;
+  font-weight: bold;
+}
+.stock-ok {
+  color: #27ae60;
+}
+`;
+
+// Inject styles
+const styleSheet = document.createElement("style");
+styleSheet.innerText = styles;
+document.head.appendChild(styleSheet);
