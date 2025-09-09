@@ -51,7 +51,7 @@ export default function Header() {
         <nav className="navbar">
           {/* Brand */}
           <Link className="brand" to="/" onClick={() => setMenuOpen(false)}>
-            <img src="/img/logo.png" alt="Nadan Ruchi Logo" className="brand-logo" />
+            <img src="/img/nadan-logo.jpg" alt="Nadan Ruchi Logo" className="brand-logo" />
             <span className="brand-text">Nadan Ruchi</span>
           </Link>
 
