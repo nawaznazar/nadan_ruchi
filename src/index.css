@@ -1484,3 +1484,117 @@ body[data-theme="dark"] .profile-card .btn {
     text-align: center;
   }
 }
+
+/* ==========================================================================
+   MOBILE RESPONSIVENESS
+   ========================================================================== */
+
+/* Small devices (max-width: 480px) */
+@media (max-width: 480px) {
+  body {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+
+  header {
+    padding: 0.5rem 1rem;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+  }
+
+  .nav-links {
+    gap: 0.5rem;
+  }
+
+  .nav-links .nav-link {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
+  }
+
+  .hero {
+    padding: 3rem 1rem;
+  }
+
+  .hero-content h1 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  .hero-content p {
+    font-size: 1rem;
+  }
+
+  .hero-content .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  table th,
+  table td {
+    font-size: 0.8rem;
+    padding: 0.4rem;
+  }
+
+  .weather-widget {
+    padding: 1rem;
+    max-width: 100%;
+  }
+
+  .popup {
+    width: 95%;
+    padding: 1rem;
+  }
+
+  footer {
+    font-size: 0.8rem;
+    padding: 1rem;
+  }
+}
+
+/* Medium devices (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
+  }
+
+  .nav-links {
+    gap: 1rem;
+  }
+
+  .nav-links .nav-link {
+    font-size: 1rem;
+  }
+}
+
+/* Tablets (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .hero-content h1 {
+    font-size: 2.2rem;
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .weather-widget {
+    max-width: 80%;
+    margin: auto;
+  }
+}
+
